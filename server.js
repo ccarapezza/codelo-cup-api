@@ -28,7 +28,7 @@ db.sequelize.sync({ force: true }).then(() => {
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Bienvenido CodeloCup API." });
+  res.json({ message: "Bienvenido CodeloCup API. ("+process.env.NODE_ENV+")" });
 });
 
 // routes
