@@ -6,7 +6,7 @@ const sequelize =
     ? new Sequelize(process.env.DATABASE_URL, {
         host: config.HOST,
         dialect: config.dialect,
-        operatorsAliases: false,
+        ssl: true,
         pool: {
           max: config.pool.max,
           min: config.pool.min,
@@ -17,8 +17,6 @@ const sequelize =
     : new Sequelize(config.DB, config.USER, config.PASSWORD, {
         host: config.HOST,
         dialect: config.dialect,
-        operatorsAliases: false,
-
         pool: {
           max: config.pool.max,
           min: config.pool.min,
