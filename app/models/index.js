@@ -5,7 +5,10 @@ const sequelize =
   process.env.NODE_ENV === "production"
     ? new Sequelize(process.env.DATABASE_URL, {
         dialectOptions: {
-          ssl: true,
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
         },
         pool: {
           max: config.pool.max,
