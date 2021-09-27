@@ -4,9 +4,9 @@ const Sequelize = require("sequelize");
 const sequelize =
   process.env.NODE_ENV === "production"
     ? new Sequelize(process.env.DATABASE_URL, {
-        host: config.HOST,
-        dialect: config.dialect,
-        ssl: true,
+        dialectOptions: {
+          ssl: true,
+        },
         pool: {
           max: config.pool.max,
           min: config.pool.min,
