@@ -11,7 +11,8 @@
     "jwt",
     "authentication",
     "express",
-    "mysql"
+    "mysql",
+    "pg"
   ],
   "author": "bezkoder",
   "license": "ISC",
