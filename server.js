@@ -28,12 +28,15 @@ db.sequelize.sync({ force: true }).then(() => {
 
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Bienvenido CodeloCup API. ("+process.env.NODE_ENV+")" });
+  res.json({
+    message: "Bienvenido CodeloCup API. (" + process.env.NODE_ENV + ")",
+  });
 });
 
 // routes
 require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
+require("./app/routes/participante.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
