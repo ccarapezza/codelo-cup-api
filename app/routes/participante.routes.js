@@ -1,4 +1,4 @@
-const { verifySignUp } = require("../middleware");
+const { authJwt } = require("../middleware");
 const controller = require("../controllers/participante.controller");
 const { check, validationResult } = require('express-validator');
 
@@ -14,6 +14,7 @@ module.exports = function (app) {
   app.post(
     "/api/participante/create",
     [
+      authJwt.verifyToken,
       check('name').exists({checkFalsy: true}),
       check('muestras').isArray().notEmpty().custom((value, { req }) => {
         const muestras = req.body.muestras;
