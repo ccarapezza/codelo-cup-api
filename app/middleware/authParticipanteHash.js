@@ -16,7 +16,7 @@ verifyHash = (req, res, next) => {
     }
   }).then((participante) => {
     if(participante){
-      req.participante = participante;
+      req.participante = participante?.toJSON();
       next();
     }else{
       return res.status(401).send({
@@ -28,8 +28,8 @@ verifyHash = (req, res, next) => {
   });
 };
 
-const authJwt = {
+const authParticipanteHash = {
   verifyHash: verifyHash
 };
 
-module.exports = authJwt;
+module.exports = authParticipanteHash;

@@ -1,10 +1,12 @@
 const db = require("../models");
 const Participante = db.participante;
 const Muestra = db.muestra;
+const Calificacion = db.calificacion;
 
 const Op = db.Sequelize.Op;
 
 const crypto = require('crypto');
+const { calificacion } = require("../models");
 
 exports.create = (req, res) => {
   const data = req.body;
@@ -60,6 +62,39 @@ exports.participanteLogin = (req, res) => {
       res.status(500).send({ message: "Datos inválidos." });  
     }
   }).catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.calificaciones = (req, res) => {
+  const participanteId = req.participante?.id;
+  Calificacion.findAll({
+    where: {
+      participanteId: {
+        [Op.eq]: participanteId
+      }
+    },
+    include: [ Muestra ]
+  }).then((calificaciones) => {   
+    res.status(200).send({ calificaciones:
+      calificaciones.map((calificacion)=>{
+        return({
+          presentacion: calificacion.presentacion,
+          aromaApagado: calificacion.aromaApagado,
+          aromaPrendido: calificacion.aromaPrendido,
+          saborApagado: calificacion.saborApagado,
+          saborPrendido: calificacion.saborPrendido,
+          createdAt: calificacion.createdAt,
+          updatedAt: calificacion.updatedAt,
+          muestra:{
+            id: calificacion.muestra.id,
+            hash: calificacion.muestra.hash,
+          }
+        })
+      })
+    });
+  })
+  .catch((err) => {
     res.status(500).send({ message: err.message });
   });
 };

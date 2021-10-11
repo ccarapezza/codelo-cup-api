@@ -1,4 +1,4 @@
-const { authJwt } = require("../middleware");
+const { authJwt, authParticipanteHash } = require("../middleware");
 const controller = require("../controllers/participante.controller");
 const { check, validationResult } = require('express-validator');
 
@@ -39,4 +39,10 @@ module.exports = function (app) {
   app.get("/api/participante/list", controller.findAll);
 
   app.post("/api/participante/login", controller.participanteLogin);
+
+  app.get("/api/participante/calificaciones", 
+  [
+    authParticipanteHash.verifyHash
+  ],
+  controller.calificaciones);
 };
