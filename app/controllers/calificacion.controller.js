@@ -111,3 +111,12 @@ exports.calificar = (req, res) => {
     res.status(500).send({ message: err.message });
   });
 };
+
+exports.resultados = (req, res) => {
+  Calificacion.findAll({ include: Muestra }).then((calificaciones) => {
+    res.status(200).send({ calificaciones: calificaciones });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
