@@ -52,6 +52,7 @@ db.user.belongsToMany(db.role, {
 });
 
 db.participante.hasMany(db.muestra);
+db.muestra.belongsTo(db.participante);
 
 db.calificacion.belongsTo(db.participante);
 db.calificacion.belongsTo(db.muestra);

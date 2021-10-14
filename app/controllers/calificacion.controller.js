@@ -113,7 +113,12 @@ exports.calificar = (req, res) => {
 };
 
 exports.resultados = (req, res) => {
-  Calificacion.findAll({ include: Muestra }).then((calificaciones) => {
+  Calificacion.findAll({
+    include: {
+      model: Muestra,
+      include: Participante
+    },
+  }).then((calificaciones) => {
     res.status(200).send({ calificaciones: calificaciones });
   })
   .catch((err) => {
