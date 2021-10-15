@@ -18,13 +18,14 @@ app.use(express.urlencoded({ extended: true }));
 // database
 const db = require("./app/models");
 const Role = db.role;
+const Mesa = db.mesa;
 
-//db.sequelize.sync();
+db.sequelize.sync();
 // force: true will drop the table if it already exists
-db.sequelize.sync({ force: true }).then(() => {
+/*db.sequelize.sync({ force: true }).then(() => {
   console.log("Drop and Resync Database with { force: true }");
   initial();
-});
+});*/
 
 // simple route
 app.get("/", (req, res) => {
@@ -38,6 +39,8 @@ require("./app/routes/auth.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/participante.routes")(app);
 require("./app/routes/calificacion.routes")(app);
+require("./app/routes/muestra.routes")(app);
+require("./app/routes/mesa.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -60,4 +63,11 @@ function initial() {
     id: 3,
     name: "admin",
   });
+
+  for (let index= 0; index < 6; index++) {
+    Mesa.create({
+      id: index,
+      name: "Mesa "+index,
+    });  
+  }
 }

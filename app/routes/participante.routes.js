@@ -11,6 +11,8 @@ module.exports = function (app) {
     next();
   });
 
+  app.post("/api/participante/login", controller.participanteLogin);
+
   app.post(
     "/api/participante/create",
     [
@@ -35,10 +37,14 @@ module.exports = function (app) {
     ],
     controller.create
   );
-
-  app.get("/api/participante/list", controller.findAll);
-
-  app.post("/api/participante/login", controller.participanteLogin);
+  
+  app.get(
+    "/api/participante/list",
+    [
+      authJwt.verifyToken,
+    ],
+    controller.findAll
+  );
 
   app.get("/api/participante/calificaciones", 
   [
