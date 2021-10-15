@@ -174,3 +174,19 @@ exports.deleteMesa = (req, res) => {
     res.status(500).send({ message: err.message });
   });
 };
+
+exports.updateMesa = (req, res) => {
+  const id = req.body.id;
+  const name = req.body.name;
+
+  Mesa.update({ name: name }, {
+    where: {
+      id: id
+    }
+  }).then((mesa) => {   
+    res.status(200).send(mesa);
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};

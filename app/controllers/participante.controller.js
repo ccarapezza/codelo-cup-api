@@ -11,29 +11,64 @@ const { calificacion } = require("../models");
 
 exports.create = (req, res) => {
   const data = req.body;
-  //
   Participante.create({
     name: data.name,
     hash: crypto.createHash('sha1').update(data.id+data.name+new Date().getTime().toString()).digest('hex')
   })
-    .then((participante) => {
-      const hashedMuestras = data.muestras.map((muestra) => {
-        return {
-          ...muestra,
-          hash: crypto.createHash('sha1').update(data.id+data.name+muestra.id+muestra.name+new Date().getTime().toString()).digest('hex')
-        };
+  .then((participante) => {
+    const hashedMuestras = data.muestras.map((muestra) => {
+      return {
+        ...muestra,
+        hash: crypto.createHash('sha1').update(data.id+data.name+muestra.id+muestra.name+new Date().getTime().toString()).digest('hex')
+      };
+    });
+    Muestra.bulkCreate(hashedMuestras).then((muestras) => {
+      participante.addMuestras(muestras).then(() => {
+        res.status(200).send({ message: "Participante registered successfully!" });
       });
-      Muestra.bulkCreate(hashedMuestras).then((muestras) => {
-        participante.addMuestras(muestras).then(() => {
-          res
-            .status(200)
-            .send({ message: "Participante registered successfully!" });
-        });
-      });
-    })
-    .catch((err) => {
+    });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.update = (req, res) => {
+  const data = req.body;
+
+  Participante.update({
+    name: data.name,
+  }, {
+    where: {
+      id: data.id
+    }
+  })
+  .then((participante) => {
+    participante.setMuestras(data.muestras).then((participante) => {
+      res.status(200).send({ message: "Participante registered successfully!" });
+    }).catch((err) => {
       res.status(500).send({ message: err.message });
     });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.delete = (req, res) => {
+  const data = req.body;
+
+  Participante.destroy({
+    where: {
+      id: data.id
+    }
+  })
+  .then((participante) => {
+    participante.setMuestras(data.muestras);
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
 };
 
 exports.findAll = (req, res) => {

@@ -129,6 +129,7 @@ exports.resultados = (req, res) => {
   Calificacion.findAll({
     include: [{
       model: Muestra,
+      include: [Participante],
     },{
       model: Participante,
     }],

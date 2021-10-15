@@ -20,12 +20,12 @@ const db = require("./app/models");
 const Role = db.role;
 const Mesa = db.mesa;
 
-db.sequelize.sync();
+//db.sequelize.sync();
 // force: true will drop the table if it already exists
-/*db.sequelize.sync({ force: true }).then(() => {
+db.sequelize.sync({ force: true }).then(() => {
   console.log("Drop and Resync Database with { force: true }");
   initial();
-});*/
+});
 
 // simple route
 app.get("/", (req, res) => {
@@ -64,9 +64,8 @@ function initial() {
     name: "admin",
   });
 
-  for (let index= 0; index < 6; index++) {
+  for (let index= 1; index < 6; index++) {
     Mesa.create({
-      id: index,
       name: "Mesa "+index,
     });  
   }

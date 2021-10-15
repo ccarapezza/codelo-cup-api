@@ -91,6 +91,21 @@ module.exports = function (app) {
   ],
   controller.createMesa);
 
+  app.put("/api/mesas/update", 
+  [
+    authJwt.verifyToken,
+    check('id').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    check('name').exists({checkFalsy: true}).isString(),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.updateMesa);
+
   app.delete("/api/mesas/delete", 
   [
     authJwt.verifyToken,
