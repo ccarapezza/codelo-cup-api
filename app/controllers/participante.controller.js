@@ -2,6 +2,7 @@ const db = require("../models");
 const Participante = db.participante;
 const Muestra = db.muestra;
 const Calificacion = db.calificacion;
+const Mesa = db.mesa;
 
 const Op = db.Sequelize.Op;
 
@@ -13,13 +14,13 @@ exports.create = (req, res) => {
   //
   Participante.create({
     name: data.name,
-    hash: crypto.createHash('sha1').update(new Date().getTime().toString()).digest('hex')
+    hash: crypto.createHash('sha1').update(data.id+data.name+new Date().getTime().toString()).digest('hex')
   })
     .then((participante) => {
       const hashedMuestras = data.muestras.map((muestra) => {
         return {
           ...muestra,
-          hash: crypto.createHash('sha1').update(new Date().getTime().toString()).digest('hex')
+          hash: crypto.createHash('sha1').update(data.id+data.name+muestra.id+muestra.name+new Date().getTime().toString()).digest('hex')
         };
       });
       Muestra.bulkCreate(hashedMuestras).then((muestras) => {
@@ -37,9 +38,7 @@ exports.create = (req, res) => {
 
 exports.findAll = (req, res) => {
   Participante.findAll({
-    include: [
-      {model: Muestra, as: Muestra.tableName}
-    ]
+    include: [Muestra, Mesa]
   })
   .then((participantes) => {
     res.status(200).send(participantes);
@@ -54,7 +53,8 @@ exports.participanteLogin = (req, res) => {
   Participante.findOne({
     where: {
       hash: hash,
-    }
+    },
+    include: [Mesa]
   }).then((participante) => {
     if(participante){
       res.status(200).send(participante);

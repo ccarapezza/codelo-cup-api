@@ -46,4 +46,63 @@ module.exports = function (app) {
     }
   ],
   controller.addMuestraToMesa);
+
+  app.post("/api/mesas/remove-participante", 
+  [
+    authJwt.verifyToken,
+    check('idMesa').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    check('idParticipante').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.removeParticipanteToMesa);
+
+  app.post("/api/mesas/remove-muestra", 
+  [
+    authJwt.verifyToken,
+    check('idMesa').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    check('idMuestra').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.removeMuestraToMesa);
+
+  app.post("/api/mesas/create", 
+  [
+    authJwt.verifyToken,
+    check('name').exists({checkFalsy: true}).isString(),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.createMesa);
+
+  app.delete("/api/mesas/delete", 
+  [
+    authJwt.verifyToken,
+    check('id').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.deleteMesa);
+
 };

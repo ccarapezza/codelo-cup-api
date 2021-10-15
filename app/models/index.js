@@ -53,17 +53,9 @@ db.user.belongsToMany(db.role, {
   foreignKey: "userId",
   otherKey: "roleId",
 });
-//Mesa-User relations
-db.mesa.belongsToMany(db.participante, {
-  through: "participante_mesa",
-  foreignKey: "mesaId",
-  otherKey: "participanteId",
-});
-db.participante.belongsToMany(db.mesa, {
-  through: "participante_mesa",
-  foreignKey: "participanteId",
-  otherKey: "mesaId",
-});
+//Mesa-Participante relations
+db.mesa.hasMany(db.participante);
+db.participante.belongsTo(db.mesa);
 //Mesa-Muestra relations
 db.mesa.belongsToMany(db.muestra, {
   through: "muestra_mesa",
