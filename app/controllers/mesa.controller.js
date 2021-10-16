@@ -33,7 +33,7 @@ exports.addParticipanteToMesa = (req, res) => {
     })
     .then((participante) => {
       mesa.addParticipante(participante).then((newMesa) => {
-        res.status(200).send({ newMesa });
+        res.status(200).send({ message: "Participante agregado a la mesa" });
       })
       .catch((err) => {
         res.status(500).send({ message: err.message });
@@ -65,10 +65,12 @@ exports.removeParticipanteToMesa = (req, res) => {
       }
     })
     .then((participante) => {
+      console.log("participante", participante);
       mesa.removeParticipante(participante).then((newMesa) => {
-        res.status(200).send({ newMesa });
+        res.status(200).send({ message: "Participante eliminado de la mesa" });
       })
       .catch((err) => {
+        console.log("message", participante);
         res.status(500).send({ message: err.message });
       });
     })
@@ -99,7 +101,7 @@ exports.addMuestraToMesa = (req, res) => {
     })
     .then((muestra) => {
       mesa.addMuestra(muestra).then((newMesa) => {
-        res.status(200).send({ newMesa });
+        res.status(200).send({ message: "Muestra agregada a la mesa" });
       })
       .catch((err) => {
         res.status(500).send({ message: err.message });
@@ -132,7 +134,7 @@ exports.removeMuestraToMesa = (req, res) => {
     })
     .then((muestra) => {
       mesa.removeMuestra(muestra).then((newMesa) => {
-        res.status(200).send({ newMesa });
+        res.status(200).send({ message: "Muestra eliminada de la mesa" });
       })
       .catch((err) => {
         res.status(500).send({ message: err.message });

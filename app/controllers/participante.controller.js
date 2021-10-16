@@ -44,11 +44,56 @@ exports.update = (req, res) => {
     }
   })
   .then((participante) => {
-    participante.setMuestras(data.muestras).then((participante) => {
-      res.status(200).send({ message: "Participante registered successfully!" });
+    res.status(200).send(participante);
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.removeMuestra = (req, res) => {
+  const id = req.body.id;
+  
+  Muestra.destroy({
+    where: {
+      id: id
+    }
+  })
+  .then((response) => {
+    res.status(200).send({ message: "Muestra eliminada correctamente" });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.addMuestra = (req, res) => {
+  const data = req.body;
+  const participanteId = data.participanteId;
+
+  Participante.findOne({
+    where: {
+      id: participanteId
+    }
+  })
+  .then((participante) => {
+
+    Muestra.create({
+      name: data.name,
+      description: data.description,
+      hash: crypto.createHash('sha1').update(participanteId+data.name+new Date().getTime().toString()).digest('hex')
+    }).then((muestra) => {
+
+      participante.addMuestra(muestra).then((muestra) => {
+        res.status(200).send(muestra);
+      }).catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
+      
     }).catch((err) => {
       res.status(500).send({ message: err.message });
     });
+
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
@@ -63,8 +108,8 @@ exports.delete = (req, res) => {
       id: data.id
     }
   })
-  .then((participante) => {
-    participante.setMuestras(data.muestras);
+  .then((response) => {
+    res.status(500).send({ message: "Participante eliminado correctamente" });
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
@@ -77,6 +122,22 @@ exports.findAll = (req, res) => {
   })
   .then((participantes) => {
     res.status(200).send(participantes);
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.getById = (req, res) => {
+  const id = req.query.id;
+  Participante.findOne({
+    include: [Muestra, Mesa],
+    where:{
+      id: id
+    }
+  })
+  .then((participante) => {
+    res.status(200).send(participante);
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
