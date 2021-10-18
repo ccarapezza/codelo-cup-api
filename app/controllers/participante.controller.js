@@ -163,6 +163,7 @@ exports.participanteLogin = (req, res) => {
 };
 
 exports.calificaciones = (req, res) => {
+  console.log("Calificaciones!!", req.participante);
   const participanteId = req.participante?.id;
   Calificacion.findAll({
     where: {
@@ -171,7 +172,8 @@ exports.calificaciones = (req, res) => {
       }
     },
     include: [ Muestra ]
-  }).then((calificaciones) => {   
+  }).then((calificaciones) => {
+    console.log("Calificaciones List!!", calificaciones);
     res.status(200).send({ calificaciones:
       calificaciones.map((calificacion)=>{
         return({

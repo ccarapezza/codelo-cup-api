@@ -14,8 +14,8 @@ verifyToken = (req, res, next) => {
 
   jwt.verify(token, config.secret, (err, decoded) => {
     if (err) {
-      return res.status(401).send({
-        message: "Unauthorized!"
+      return res.status(403).send({
+        message: "Forbidden!"
       });
     }
     req.userId = decoded.id;
@@ -33,7 +33,7 @@ isAdmin = (req, res, next) => {
         }
       }
 
-      res.status(403).send({
+      res.status(401).send({
         message: "Require Admin Role!"
       });
       return;

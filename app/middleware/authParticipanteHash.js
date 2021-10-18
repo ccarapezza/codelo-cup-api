@@ -21,8 +21,8 @@ verifyHash = (req, res, next) => {
       req.participante = participante?.toJSON();
       next();
     }else{
-      return res.status(401).send({
-        message: "Unauthorized!"
+      return res.status(403).send({
+        message: "Forbidden!"
       });
     }
   }).catch((err) => {

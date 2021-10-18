@@ -95,7 +95,7 @@ exports.calificar = (req, res) => {
             });
           }else{//Create new
             Calificacion.create({
-              muestraId: muestra.get("id"),
+              muestraId: muestra.id,
               participanteId: participante.id,
               presentacion: data.presentacion,
               aromaPrendido: data.aromaPrendido,
