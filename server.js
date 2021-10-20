@@ -35,6 +35,7 @@ require("./app/routes/user.routes")(app);
 require("./app/routes/participante.routes")(app);
 require("./app/routes/calificacion.routes")(app);
 require("./app/routes/muestra.routes")(app);
+require("./app/routes/categoria.routes")(app);
 require("./app/routes/mesa.routes")(app);
 
 // set port, listen for requests

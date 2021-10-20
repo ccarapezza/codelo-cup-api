@@ -37,6 +37,7 @@ db.user = require("../models/user.model.js")(sequelize, Sequelize);
 db.role = require("../models/role.model.js")(sequelize, Sequelize);
 
 db.muestra = require("../models/muestra.model.js")(sequelize, Sequelize);
+db.categoria = require("../models/categoria.model.js")(sequelize, Sequelize);
 db.participante = require("../models/participante.model.js")(sequelize, Sequelize);
 db.calificacion = require("../models/calificacion.model.js")(sequelize, Sequelize);
 
@@ -53,6 +54,7 @@ db.user.belongsToMany(db.role, {
   foreignKey: "userId",
   otherKey: "roleId",
 });
+db.muestra.belongsTo(db.categoria);
 //Mesa-Participante relations
 db.mesa.hasMany(db.participante);
 db.participante.belongsTo(db.mesa);
