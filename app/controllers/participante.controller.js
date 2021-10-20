@@ -3,11 +3,8 @@ const Participante = db.participante;
 const Muestra = db.muestra;
 const Calificacion = db.calificacion;
 const Mesa = db.mesa;
-
 const Op = db.Sequelize.Op;
-
 const crypto = require('crypto');
-const { calificacion } = require("../models");
 
 exports.create = (req, res) => {
   const data = req.body;

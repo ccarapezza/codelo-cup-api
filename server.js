@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 const db = require("./app/models");
 const Role = db.role;
 const Mesa = db.mesa;
+const Categoria = db.categoria;
 
 //db.sequelize.sync();
 // force: true will drop the table if it already exists
@@ -40,6 +41,7 @@ require("./app/routes/user.routes")(app);
 require("./app/routes/participante.routes")(app);
 require("./app/routes/calificacion.routes")(app);
 require("./app/routes/muestra.routes")(app);
+require("./app/routes/categoria.routes")(app);
 require("./app/routes/mesa.routes")(app);
 
 // set port, listen for requests
@@ -64,9 +66,17 @@ function initial() {
     name: "admin",
   });
 
-  for (let index= 1; index < 6; index++) {
+  for (let index= 0; index < 6; index++) {
     Mesa.create({
       name: "Mesa "+index,
     });  
   }
+
+  Categoria.create({
+    name: "Exterior",
+  });
+
+  Categoria.create({
+    name: "Interior",
+  });
 }
