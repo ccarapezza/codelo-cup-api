@@ -21,12 +21,7 @@ const Role = db.role;
 const Mesa = db.mesa;
 const Categoria = db.categoria;
 
-//db.sequelize.sync();
-// force: true will drop the table if it already exists
-db.sequelize.sync({ force: true }).then(() => {
-  console.log("Drop and Resync Database with { force: true }");
-  initial();
-});
+db.sequelize.sync();
 
 // simple route
 app.get("/", (req, res) => {
@@ -50,34 +45,3 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-
-function initial() {
-  Role.create({
-    id: 1,
-    name: "user",
-  });
-
-  Role.create({
-    id: 2,
-    name: "moderator",
-  });
-
-  Role.create({
-    id: 3,
-    name: "admin",
-  });
-
-  for (let index=1; index <= 12; index++) {
-    Mesa.create({
-      name: "Mesa "+index,
-    });  
-  }
-
-  Categoria.create({
-    name: "Exterior",
-  });
-
-  Categoria.create({
-    name: "Interior",
-  });
-}
