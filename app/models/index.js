@@ -35,15 +35,13 @@ db.sequelize = sequelize;
 
 db.user = require("../models/user.model.js")(sequelize, Sequelize);
 db.role = require("../models/role.model.js")(sequelize, Sequelize);
-
 db.muestra = require("../models/muestra.model.js")(sequelize, Sequelize);
 db.categoria = require("../models/categoria.model.js")(sequelize, Sequelize);
 db.participante = require("../models/participante.model.js")(sequelize, Sequelize);
 db.calificacion = require("../models/calificacion.model.js")(sequelize, Sequelize);
-
+db.dojo = require("../models/dojo.model.js")(sequelize, Sequelize);
 db.mesa = require("../models/mesa.model.js")(sequelize, Sequelize);
 
-//Role-User relations
 db.role.belongsToMany(db.user, {
   through: "user_roles",
   foreignKey: "roleId",
@@ -54,24 +52,25 @@ db.user.belongsToMany(db.role, {
   foreignKey: "userId",
   otherKey: "roleId",
 });
-db.muestra.belongsTo(db.categoria);
-//Mesa-Participante relations
-db.mesa.hasMany(db.participante);
+
 db.participante.belongsTo(db.mesa);
-//Mesa-Muestra relations
-db.mesa.belongsToMany(db.muestra, {
-  through: "muestra_mesa",
-  foreignKey: "mesaId",
-  otherKey: "muestraId",
-});
+db.participante.hasMany(db.muestra);
+db.participante.belongsTo(db.dojo);
+
+db.muestra.belongsTo(db.participante);
+db.muestra.belongsTo(db.categoria);
 db.muestra.belongsToMany(db.mesa, {
   through: "muestra_mesa",
   foreignKey: "muestraId",
   otherKey: "mesaId",
 });
 
-db.participante.hasMany(db.muestra);
-db.muestra.belongsTo(db.participante);
+db.mesa.hasMany(db.participante);
+db.mesa.belongsToMany(db.muestra, {
+  through: "muestra_mesa",
+  foreignKey: "mesaId",
+  otherKey: "muestraId",
+});
 
 db.calificacion.belongsTo(db.participante);
 db.calificacion.belongsTo(db.muestra);

@@ -1,8 +1,10 @@
 const db = require("../models");
 const Calificacion = db.calificacion;
 const Participante = db.participante;
+const Categoria = db.categoria;
 const Muestra = db.muestra;
 const Mesa = db.mesa;
+const Dojo = db.dojo;
 const Op = db.Sequelize.Op;
 
 exports.validar = (req, res) => {
@@ -129,9 +131,15 @@ exports.resultados = (req, res) => {
   Calificacion.findAll({
     include: [{
       model: Muestra,
-      include: [Participante],
+      include: [
+        {
+          model: Participante,
+          include: [Dojo, Mesa],
+        },
+        Categoria],
     },{
       model: Participante,
+      include: [Mesa],
     }],
   }).then((calificaciones) => {
     res.status(200).send({ calificaciones: calificaciones });

@@ -61,6 +61,7 @@ module.exports = function (app) {
       authJwt.verifyToken,
       check('participanteId').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
       check('name').exists({checkFalsy: true}),
+      check('categoriaId').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
       (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

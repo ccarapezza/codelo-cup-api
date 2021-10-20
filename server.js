@@ -43,6 +43,7 @@ require("./app/routes/calificacion.routes")(app);
 require("./app/routes/muestra.routes")(app);
 require("./app/routes/categoria.routes")(app);
 require("./app/routes/mesa.routes")(app);
+require("./app/routes/dojo.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -66,7 +67,7 @@ function initial() {
     name: "admin",
   });
 
-  for (let index= 0; index < 6; index++) {
+  for (let index=1; index <= 12; index++) {
     Mesa.create({
       name: "Mesa "+index,
     });  

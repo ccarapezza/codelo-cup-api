@@ -6,6 +6,14 @@ module.exports = (sequelize, Sequelize) => {
     hash: {
       type: Sequelize.STRING
     },
+    grow: {
+      type: Sequelize.STRING
+    },
+    esJurado: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
   });
 
   return Particiante;

@@ -2,7 +2,9 @@ const db = require("../models");
 const Participante = db.participante;
 const Muestra = db.muestra;
 const Calificacion = db.calificacion;
+const Categoria = db.categoria;
 const Mesa = db.mesa;
+const Dojo = db.dojo;
 const Op = db.Sequelize.Op;
 const crypto = require('crypto');
 
@@ -10,6 +12,8 @@ exports.create = (req, res) => {
   const data = req.body;
   Participante.create({
     name: data.name,
+    dojoId: data.dojoId,
+    grow: data.grow,
     hash: crypto.createHash('sha1').update(data.id+data.name+new Date().getTime().toString()).digest('hex')
   })
   .then((participante) => {
@@ -78,6 +82,7 @@ exports.addMuestra = (req, res) => {
     Muestra.create({
       name: data.name,
       description: data.description,
+      categoriaId: data.categoriaId,
       hash: crypto.createHash('sha1').update(participanteId+data.name+new Date().getTime().toString()).digest('hex')
     }).then((muestra) => {
 
@@ -115,7 +120,17 @@ exports.delete = (req, res) => {
 
 exports.findAll = (req, res) => {
   Participante.findAll({
-    include: [Muestra, Mesa]
+    include: [
+      {
+        model: Muestra,
+        include: [Categoria],
+      },
+      {
+        model: Mesa
+      },
+      {
+        model: Dojo
+      }]
   })
   .then((participantes) => {
     res.status(200).send(participantes);
@@ -128,7 +143,12 @@ exports.findAll = (req, res) => {
 exports.getById = (req, res) => {
   const id = req.query.id;
   Participante.findOne({
-    include: [Muestra, Mesa],
+    include: [{
+        model: Muestra,
+        include: [Categoria],
+      }, {
+        model: Mesa
+      }],
     where:{
       id: id
     }

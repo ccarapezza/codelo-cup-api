@@ -2,10 +2,16 @@ const db = require("../models");
 const Mesa = db.mesa;
 const Muestra = db.muestra;
 const Participante = db.participante;
+const Categoria = db.categoria;
 
 exports.findAll = (req, res) => {
   Mesa.findAll({
-    include: [ Muestra, Participante ]
+    include: [ {
+      model: Muestra,
+      include: [Categoria],
+    }, {
+      model: Participante
+    } ]
   })
   .then((mesas) => {
     res.status(200).send(mesas);
