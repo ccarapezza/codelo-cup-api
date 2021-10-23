@@ -8,6 +8,7 @@ exports.hashList = (req, res) => {
     res.status(200).send(muestras.map((muestra)=>{
       return({
         id:muestra.id,
+        n: muestra.n,
         name: muestra.name,
         description: muestra.description,
         hash: muestra.hash,
