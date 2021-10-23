@@ -25,10 +25,7 @@ const Categoria = db.categoria;
 const Role = db.role;
 const User = db.user;
 
-db.sequelize.sync({ force: true }).then(() => {
-  console.log("Drop and Resync Database with { force: true }");
-  initial();
-});
+db.sequelize.sync();
 
 // simple route
 app.get("/", (req, res) => {
@@ -80,42 +77,3 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-
-function initial() {
-  Role.create({
-    id: 1,
-    name: "user",
-  });
-
-  Role.create({
-    id: 2,
-    name: "moderator",
-  });
-
-  Role.create({
-    id: 3,
-    name: "admin",
-  });
-
-  User.create({
-    username: "admin",
-    email: "admin@admin.com",
-    password: "$2a$08$ANDS1Yo6EQSQfzHQoybU2eBCR.3Ut6t4AL099R8hI3J.NE.o4vEaW",
-  }).then((user) => {
-    user.setRoles([1]);
-  });
-
-  for (let index= 0; index < 6; index++) {
-    Mesa.create({
-      name: "Mesa "+index,
-    });  
-  }
-
-  Categoria.create({
-    name: "Exterior",
-  });
-
-  Categoria.create({
-    name: "Interior",
-  });
-}
