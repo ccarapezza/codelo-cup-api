@@ -4,8 +4,8 @@ const { check, validationResult } = require('express-validator');
 
 const validateCalificacion = (calificacion) =>{
   if(!isNaN(calificacion)){
-    const calificacionInt = parseInt(calificacion);
-    if(calificacionInt<=10&&calificacionInt>=1){
+    const calificacionFloat = parseFloat(calificacion);
+    if(calificacionFloat<=10&&calificacionFloat>=1){
       return true;
     }
   }
@@ -63,4 +63,18 @@ module.exports = function (app) {
     authJwt.verifyToken,
   ],
   controller.resultados);
+
+  app.post("/api/calificaciones/muestra",
+  [
+    authParticipanteHash.verifyHash,
+    check('hashMuestra').exists({checkFalsy: true}).isString(),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.findByMuestraHash);
 };

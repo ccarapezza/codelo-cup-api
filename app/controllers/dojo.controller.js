@@ -32,6 +32,22 @@ exports.update = (req, res) => {
   });
 };
 
+exports.delete = (req, res) => {
+  const data = req.body;
+
+  Dojo.destroy({
+    where: {
+      id: data.id
+    }
+  })
+  .then((response) => {
+    res.status(200).send({ message: "Dojo eliminado correctamente" });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
 exports.findAll = (req, res) => {
   Dojo.findAll().then((dojos) => {
     res.status(200).send(dojos);

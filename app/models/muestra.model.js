@@ -1,5 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
   const Muestra = sequelize.define("muestras", {
+    n: {
+      type: Sequelize.INTEGER
+    },
     name: {
       type: Sequelize.STRING
     },

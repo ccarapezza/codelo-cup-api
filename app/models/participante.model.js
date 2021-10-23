@@ -1,5 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
   const Particiante = sequelize.define("participantes", {
+    n: {
+      type: Sequelize.INTEGER
+    },
     name: {
       type: Sequelize.STRING
     },

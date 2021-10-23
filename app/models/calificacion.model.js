@@ -1,19 +1,19 @@
 module.exports = (sequelize, Sequelize) => {
   const Calificacion = sequelize.define("calificaciones", {
     presentacion: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     aromaPrendido: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     aromaApagado: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     saborPrendido: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     },
     saborApagado: {
-      type: Sequelize.INTEGER
+      type: Sequelize.FLOAT
     }
   });
 

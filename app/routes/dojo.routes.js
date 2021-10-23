@@ -43,6 +43,22 @@ module.exports = function (app) {
     ],
     controller.update
   );
+
+  app.delete(
+    "/api/dojo/delete",
+    [
+      authJwt.verifyToken,
+      check('id').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+      (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+      }
+    ],
+    controller.delete
+  );
   
   app.get(
     "/api/dojo/list",

@@ -10,7 +10,8 @@ exports.findAll = (req, res) => {
       model: Muestra,
       include: [Categoria],
     }, {
-      model: Participante
+      model: Participante,
+      include: [Muestra],
     } ]
   })
   .then((mesas) => {
@@ -38,12 +39,24 @@ exports.addParticipanteToMesa = (req, res) => {
       }
     })
     .then((participante) => {
-      mesa.addParticipante(participante).then((newMesa) => {
-        res.status(200).send({ message: "Participante agregado a la mesa" });
-      })
-      .catch((err) => {
-        res.status(500).send({ message: err.message });
-      });
+      let forbidden = false;
+      const muestrasDelParticipante = participante.muestras;
+      const muestrasDeLaMesa = mesa.muestras;
+      for (const muestraDelParticipante of muestrasDelParticipante) {
+          for (const muestraDeLaMesa of muestrasDeLaMesa) {
+              forbidden = forbidden || muestraDeLaMesa.id === muestraDelParticipante.id;
+          }
+      }
+      if(!forbidden){
+        mesa.addParticipante(participante).then((newMesa) => {
+          res.status(200).send({ message: "Participante agregado a la mesa" });
+        })
+        .catch((err) => {
+          res.status(500).send({ message: err.message });
+        });
+      }else{
+        res.status(401).send({ message: "No se puede agregar el participante a esta mesa." });
+      }
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
@@ -71,12 +84,10 @@ exports.removeParticipanteToMesa = (req, res) => {
       }
     })
     .then((participante) => {
-      console.log("participante", participante);
       mesa.removeParticipante(participante).then((newMesa) => {
         res.status(200).send({ message: "Participante eliminado de la mesa" });
       })
       .catch((err) => {
-        console.log("message", participante);
         res.status(500).send({ message: err.message });
       });
     })
@@ -106,12 +117,22 @@ exports.addMuestraToMesa = (req, res) => {
       }
     })
     .then((muestra) => {
-      mesa.addMuestra(muestra).then((newMesa) => {
-        res.status(200).send({ message: "Muestra agregada a la mesa" });
-      })
-      .catch((err) => {
-        res.status(500).send({ message: err.message });
-      });
+      const participantesDeLaMesa = mesa.participantes;
+      for (const participanteDeLaMesa of participantesDeLaMesa) {
+          for (const muestra of participanteDeLaMesa.muestras) {
+              forbidden = forbidden || muestra.id===parseInt(idMuestra);
+          }
+      }
+      if(!forbidden){
+        mesa.addMuestra(muestra).then((newMesa) => {
+          res.status(200).send({ message: "Muestra agregada a la mesa" });
+        })
+        .catch((err) => {
+          res.status(500).send({ message: err.message });
+        });
+      }else{
+        res.status(401).send({ message: "No se puede agregar la muestra a esta mesa." });
+      }
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });

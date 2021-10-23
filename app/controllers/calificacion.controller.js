@@ -10,7 +10,9 @@ const Op = db.Sequelize.Op;
 exports.validar = (req, res) => {
   const data = req.body;
   const participante = req.participante;
-  const participanteId = req.participante?.id;
+  const participanteId = participante?.id;
+  const esJurado =participante?.esJurado;
+
   Muestra.findOne({
     where: {
       hash:{
@@ -22,7 +24,7 @@ exports.validar = (req, res) => {
     if(parseInt(muestra.participanteId)===parseInt(participanteId)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
-      if(muestra?.mesas?.map((mesa)=>mesa.id).includes(participante?.mesa?.id)){
+      if(muestra?.mesas?.map((mesa)=>mesa.id).includes(participante?.mesa?.id)||esJurado){
         Calificacion.findOne({
           where: {
             participanteId: participanteId,
@@ -65,6 +67,7 @@ exports.validar = (req, res) => {
 exports.calificar = (req, res) => {
   const data = req.body;
   const participante = req.participante;
+  const esJurado = participante?.esJurado;
 
   Muestra.findOne({
     where: {
@@ -77,7 +80,7 @@ exports.calificar = (req, res) => {
     if(parseInt(muestra.participanteId)===parseInt(participante?.id)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
-      if(muestra?.mesas?.map((mesa)=>mesa.id).includes(participante?.mesa?.id)){
+      if(muestra?.mesas?.map((mesa)=>mesa.id).includes(participante?.mesa?.id)||esJurado){
         Calificacion.findOne({
           where: {
             participanteId: participante?.id,
@@ -147,4 +150,38 @@ exports.resultados = (req, res) => {
   .catch((err) => {
     res.status(500).send({ message: err.message });
   });
+};
+
+exports.findByMuestraHash = (req, res) => {
+  const hashMuestra = req.body.hashMuestra;
+  const participante = req.participante;
+  const esJurado = participante?.esJurado;
+  if(esJurado){
+    Calificacion.findAll({
+      include: [{
+        model: Muestra,
+        include: [
+          {
+            model: Participante,
+            include: [Dojo, Mesa],
+          },
+          Categoria],
+        },{
+          model: Participante,
+          include: [Mesa],
+        }],
+        where: {
+          '$Muestra.hash$': {
+            [Op.eq]: hashMuestra
+          }
+        },
+    }).then((calificaciones) => {
+      res.status(200).send({ calificaciones: calificaciones });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  }else{
+    res.status(401).send({ message: err.message });
+  }
 };

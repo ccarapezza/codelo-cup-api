@@ -17,9 +17,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // database
 const db = require("./app/models");
-const Role = db.role;
 const Mesa = db.mesa;
-const Categoria = db.categoria;
+const Muestra = db.muestra;
+const Participante = db.participante;
+const Calificacion = db.calificacion;
 
 db.sequelize.sync();
 
@@ -27,6 +28,35 @@ db.sequelize.sync();
 app.get("/", (req, res) => {
   res.json({
     message: "Bienvenido CodeloCup API. (" + process.env.NODE_ENV + ")",
+  });
+});
+
+app.get("/api/data", async (req, res) => {
+
+  const mesaData = await Mesa.findAll({
+    include : [
+      { model: Participante, attributes: ["id", "name"] },
+      { model: Muestra, attributes: ["id", "name"] }
+    ]
+  });
+
+  const calificacionesData = await Calificacion.findAll({
+    attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
+  });
+
+  const participanteData = await Participante.findAll({
+    attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
+  });
+
+  const muestrasData = await Muestra.findAll({
+    attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
+  });
+  
+  res.json({
+    mesaData: mesaData,
+    participantes: participanteData[0],
+    muestras: muestrasData[0],
+    calificaciones: calificacionesData[0]
   });
 });
 

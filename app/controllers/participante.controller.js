@@ -8,18 +8,42 @@ const Dojo = db.dojo;
 const Op = db.Sequelize.Op;
 const crypto = require('crypto');
 
-exports.create = (req, res) => {
+exports.create = async(req, res) => {
   const data = req.body;
+
+  const participantesN = await Participante.findAll({raw: true, attributes: ['n']});
+  const usedParticipantesNs = participantesN.map((participante)=>participante.n);
+  let availableParticipantesN = new Array();
+  for(let i=1; i<200; i++){
+    if(!usedParticipantesNs.includes(i)){
+      availableParticipantesN.push(i);
+    }
+  }
+  const n = availableParticipantesN[Math.floor(Math.random() * availableParticipantesN.length)];
+
+  const muestraN = await Muestra.findAll({raw: true, attributes: ['n']});
+  const usedMuestrasNs = muestraN.map((muestra)=>muestra.n);
+  let availableMuestraN = new Array();
+  for(let i=1; i<200; i++){
+    if(!usedMuestrasNs.includes(i)){
+      availableMuestraN.push(i);
+    }
+  }
+
   Participante.create({
     name: data.name,
     dojoId: data.dojoId,
     grow: data.grow,
+    n: n,
     hash: crypto.createHash('sha1').update(data.id+data.name+new Date().getTime().toString()).digest('hex')
   })
   .then((participante) => {
     const hashedMuestras = data.muestras.map((muestra) => {
+      const n = availableMuestraN[Math.floor(Math.random() * availableMuestraN.length)];
+      availableMuestraN.push(n);
       return {
         ...muestra,
+        n: n,
         hash: crypto.createHash('sha1').update(data.id+data.name+muestra.id+muestra.name+new Date().getTime().toString()).digest('hex')
       };
     });
@@ -28,6 +52,33 @@ exports.create = (req, res) => {
         res.status(200).send({ message: "Participante registered successfully!" });
       });
     });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.createJurado = async(req, res) => {
+  const data = req.body;
+
+  const participantesN = await Participante.findAll({raw: true, attributes: ['n']});
+  const usedParticipantesNs = participantesN.map((participante)=>participante.n);
+  let availableParticipantesN = new Array();
+  for(let i=1; i<200; i++){
+    if(!usedParticipantesNs.includes(i)){
+      availableParticipantesN.push(i);
+    }
+  }
+  const n = availableParticipantesN[Math.floor(Math.random() * availableParticipantesN.length)];
+
+  Participante.create({
+    name: data.name,
+    esJurado: true,
+    n: n,
+    hash: crypto.createHash('sha1').update(data.id+data.name+new Date().getTime().toString()).digest('hex')
+  })
+  .then((participante) => {
+    res.status(200).send({ message: "Jurado registered successfully!" });
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
@@ -68,9 +119,19 @@ exports.removeMuestra = (req, res) => {
   });
 };
 
-exports.addMuestra = (req, res) => {
+exports.addMuestra = async(req, res) => {
   const data = req.body;
   const participanteId = data.participanteId;
+
+  const muestraN = await Muestra.findAll({raw: true, attributes: ['n']});
+  const usedMuestrasNs = muestraN.map((muestra)=>muestra.n);
+  let availableMuestraN = new Array();
+  for(let i=1; i<200; i++){
+    if(!usedMuestrasNs.includes(i)){
+      availableMuestraN.push(i);
+    }
+  }
+  const n = availableMuestraN[Math.floor(Math.random() * availableMuestraN.length)];
 
   Participante.findOne({
     where: {
@@ -80,6 +141,7 @@ exports.addMuestra = (req, res) => {
   .then((participante) => {
 
     Muestra.create({
+      n: n,
       name: data.name,
       description: data.description,
       categoriaId: data.categoriaId,
@@ -102,6 +164,26 @@ exports.addMuestra = (req, res) => {
   });
 };
 
+exports.updateMuestra = (req, res) => {
+  const data = req.body;
+
+  Muestra.update({
+    name: data.name,
+    description: data.description,
+    categoriaId: data.categoriaId,
+  }, {
+    where: {
+      id: data.id
+    }
+  })
+  .then((muestra) => {
+    res.status(200).send(muestra);
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
 exports.delete = (req, res) => {
   const data = req.body;
 
@@ -111,7 +193,7 @@ exports.delete = (req, res) => {
     }
   })
   .then((response) => {
-    res.status(500).send({ message: "Participante eliminado correctamente" });
+    res.status(200).send({ message: "Participante eliminado correctamente" });
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
@@ -130,7 +212,35 @@ exports.findAll = (req, res) => {
       },
       {
         model: Dojo
-      }]
+      }],
+    where:{
+      esJurado: false
+    }
+  })
+  .then((participantes) => {
+    res.status(200).send(participantes);
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.findJuradosAll = (req, res) => {
+  Participante.findAll({
+    include: [
+      {
+        model: Muestra,
+        include: [Categoria],
+      },
+      {
+        model: Mesa
+      },
+      {
+        model: Dojo
+      }],
+    where:{
+      esJurado: true
+    }
   })
   .then((participantes) => {
     res.status(200).send(participantes);
@@ -180,7 +290,6 @@ exports.participanteLogin = (req, res) => {
 };
 
 exports.calificaciones = (req, res) => {
-  console.log("Calificaciones!!", req.participante);
   const participanteId = req.participante?.id;
   Calificacion.findAll({
     where: {
@@ -190,7 +299,6 @@ exports.calificaciones = (req, res) => {
     },
     include: [ Muestra ]
   }).then((calificaciones) => {
-    console.log("Calificaciones List!!", calificaciones);
     res.status(200).send({ calificaciones:
       calificaciones.map((calificacion)=>{
         return({
