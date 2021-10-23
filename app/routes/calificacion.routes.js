@@ -66,7 +66,7 @@ module.exports = function (app) {
 
   app.post("/api/calificaciones/muestra",
   [
-    authParticipanteHash.verifyHash,
+    authJwt.verifyTokenOrJudgeHash,
     check('hashMuestra').exists({checkFalsy: true}).isString(),
     (req, res, next) => {
       const errors = validationResult(req);

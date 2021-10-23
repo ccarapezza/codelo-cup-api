@@ -23,6 +23,46 @@ verifyToken = (req, res, next) => {
   });
 };
 
+verifyTokenOrJudgeHash = (req, res, next) => {
+  let hash = req.headers["x-access-hash"];
+  let token = req.headers["x-access-token"];
+
+  if (!hash) {
+    Participante.findOne({
+      where: {
+        hash: hash,
+      },
+      include: [Mesa]
+    }).then((participante) => {
+      if(participante&&participante?.esJurado){
+        req.participante = participante?.toJSON();
+        next();
+      }else{
+        return res.status(403).send({
+          message: "Forbidden!"
+        });
+      }
+    }).catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  }else if (!token) {
+    jwt.verify(token, config.secret, (err, decoded) => {
+      if (err) {
+        return res.status(403).send({
+          message: "Forbidden!"
+        });
+      }
+      req.userId = decoded.id;
+      next();
+    });
+  }else{
+    return res.status(403).send({
+      message: "No token or hash provided!"
+    });
+  }
+
+};
+
 isAdmin = (req, res, next) => {
   User.findByPk(req.userId).then(user => {
     user.getRoles().then(roles => {
@@ -84,6 +124,7 @@ const authJwt = {
   verifyToken: verifyToken,
   isAdmin: isAdmin,
   isModerator: isModerator,
-  isModeratorOrAdmin: isModeratorOrAdmin
+  isModeratorOrAdmin: isModeratorOrAdmin,
+  verifyTokenOrJudgeHash: verifyTokenOrJudgeHash
 };
 module.exports = authJwt;
