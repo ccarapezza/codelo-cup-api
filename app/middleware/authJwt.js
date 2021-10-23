@@ -34,8 +34,8 @@ verifyTokenOrJudgeHash = (req, res, next) => {
       },
       include: [Mesa]
     }).then((participante) => {
-      if(participante&&participante?.esJurado){
-        req.participante = participante?.toJSON();
+      req.participante = participante?.toJSON();
+      if(req.participante&&req.participante?.esJurado){
         next();
       }else{
         return res.status(403).send({
