@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const config = require("../config/auth.config.js");
 const db = require("../models");
 const User = db.user;
+const Participante = db.participante;
+const Mesa = db.mesa;
 
 verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
@@ -27,7 +29,7 @@ verifyTokenOrJudgeHash = (req, res, next) => {
   let hash = req.headers["x-access-hash"];
   let token = req.headers["x-access-token"];
 
-  if (!hash) {
+  if (hash) {
     Participante.findOne({
       where: {
         hash: hash,
@@ -45,7 +47,7 @@ verifyTokenOrJudgeHash = (req, res, next) => {
     }).catch((err) => {
       res.status(500).send({ message: err.message });
     });
-  }else if (!token) {
+  }else if (token) {
     jwt.verify(token, config.secret, (err, decoded) => {
       if (err) {
         return res.status(403).send({
