@@ -158,23 +158,25 @@ exports.findByMuestraHash = (req, res) => {
   const esJurado = participante?.esJurado;
   if(esJurado){
     Calificacion.findAll({
-      include: [{
-        model: Muestra,
-        include: [
-          {
-            model: Participante,
-            include: [Dojo, Mesa],
+      include: [
+        {
+          model: Muestra,
+          include: [
+            {
+              model: Participante,
+              include: [Dojo, Mesa],
+            },
+            Categoria
+          ],
+          where: {
+            hash: hashMuestra
           },
-          Categoria],
-        },{
+        },
+        {
           model: Participante,
           include: [Mesa],
-        }],
-        where: {
-          '$Muestra.hash$': {
-            [Op.eq]: hashMuestra
-          }
-        },
+        }
+      ]
     }).then((calificaciones) => {
       res.status(200).send({ calificaciones: calificaciones });
     })
