@@ -34,6 +34,7 @@ exports.addParticipanteToMesa = (req, res) => {
   })
   .then((mesa) => {
     Participante.findOne({
+      include: [ Muestra ],
       where: {
         id: idParticipante
       }
