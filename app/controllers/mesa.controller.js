@@ -109,7 +109,12 @@ exports.addMuestraToMesa = (req, res) => {
     where: {
       id: idMesa
     },
-    include: [ Muestra, Participante ]
+    include: [{
+      model: Participante,
+      include: [Muestra],
+    }, {
+      model: Muestra
+    }]
   })
   .then((mesa) => {
     Muestra.findOne({
