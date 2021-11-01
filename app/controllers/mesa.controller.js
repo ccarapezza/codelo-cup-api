@@ -123,6 +123,7 @@ exports.addMuestraToMesa = (req, res) => {
       }
     })
     .then((muestra) => {
+      let forbidden = false;
       const participantesDeLaMesa = mesa.participantes;
       for (const participanteDeLaMesa of participantesDeLaMesa) {
           for (const muestra of participanteDeLaMesa.muestras) {
