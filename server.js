@@ -44,23 +44,21 @@ app.get("/api/data", async (req, res) => {
   });
 
   const calificacionesData = await Calificacion.findAll({
-    where: {
-      '$Participante.esJurado$' : false
-    },
     include: [{
       model: Participante,
-      required: false
+      where: {
+        esJurado : false
+      }
     }],
     attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
   });
 
   const calificacionesJuradoData = await Calificacion.findAll({
-    where: {
-      '$Participante.esJurado$' : true
-    },
     include: [{
       model: Participante,
-      required: false
+      where: {
+        esJurado : true
+      }
     }],
     attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
   });
