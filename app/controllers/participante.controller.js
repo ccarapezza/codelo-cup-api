@@ -311,6 +311,7 @@ exports.calificaciones = (req, res) => {
           updatedAt: calificacion.updatedAt,
           muestra:{
             id: calificacion.muestra.id,
+            n: calificacion.muestra.n,
             hash: calificacion.muestra.hash,
           }
         })
