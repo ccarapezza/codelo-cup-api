@@ -26,6 +26,7 @@ exports.validar = (req, res) => {
     }else{
       if(muestra?.mesas?.map((mesa)=>mesa.id).includes(participante?.mesa?.id)||esJurado){
         Calificacion.findOne({
+          include: [ Muestra ],
           where: {
             participanteId: participanteId,
             muestraId: muestra.id,
@@ -44,11 +45,11 @@ exports.validar = (req, res) => {
                 createdAt: calificacion.createdAt,
                 updatedAt: calificacion.updatedAt,
                 participanteId: calificacion.participanteId,
-                muestraId: calificacion.muestraId,
+                muestraN: calificacion.muestra.n,
               }
             });
           }else{
-            res.status(200).send({ id: muestra.id });
+            res.status(200).send({ id: muestra.id, muestraN: muestra.n });
           }
         })
         .catch((err) => {
