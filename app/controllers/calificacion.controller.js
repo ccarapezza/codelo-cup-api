@@ -35,6 +35,7 @@ exports.validar = (req, res) => {
           if(calificacion){
             res.status(200).send({
               id: muestra.id,
+              muestraN: calificacion.muestra.n,
               calificacion: {
                 id: calificacion.id,
                 presentacion: calificacion.presentacion,
@@ -45,8 +46,6 @@ exports.validar = (req, res) => {
                 createdAt: calificacion.createdAt,
                 updatedAt: calificacion.updatedAt,
                 participanteId: calificacion.participanteId,
-                muestraId: calificacion.muestraId,
-                muestraN: calificacion.muestra.n,
               }
             });
           }else{
