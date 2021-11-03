@@ -29,8 +29,7 @@ exports.validar = (req, res) => {
           include: [ Muestra ],
           where: {
             participanteId: participanteId,
-            muestraId: muestra.id,
-            muestraN: muestra.n
+            muestraId: muestra.id
           }
         }).then((calificacion) => {
           if(calificacion){
