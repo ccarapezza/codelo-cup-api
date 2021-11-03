@@ -44,10 +44,38 @@ app.get("/api/data", async (req, res) => {
   });
 
   const calificacionesData = await Calificacion.findAll({
+    where: {
+      '$Participante.esJurado$' : false
+    },
+    include: [{
+      model: Participante,
+      required: false
+    }],
+    attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
+  });
+
+  const calificacionesJuradoData = await Calificacion.findAll({
+    where: {
+      '$Participante.esJurado$' : true
+    },
+    include: [{
+      model: Participante,
+      required: false
+    }],
     attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
   });
 
   const participanteData = await Participante.findAll({
+    where: {
+      esJurado: false
+    },
+    attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
+  });
+
+  const juradoData = await Participante.findAll({
+    where: {
+      esJurado: true
+    },
     attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
   });
 
@@ -58,8 +86,10 @@ app.get("/api/data", async (req, res) => {
   res.json({
     mesaData: mesaData,
     participantes: participanteData[0],
+    jurados: juradoData[0],
     muestras: muestrasData[0],
-    calificaciones: calificacionesData[0]
+    calificaciones: calificacionesData[0],
+    calificacionesJurado: calificacionesJuradoData[0]
   });
 });
 
