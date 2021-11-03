@@ -84,8 +84,8 @@ app.get("/api/data", async (req, res) => {
     participantes: participanteData[0],
     jurados: juradoData[0],
     muestras: muestrasData[0],
-    calificaciones: calificacionesData[0]?calificacionesData[0]:{},
-    calificacionesJurado: calificacionesJuradoData[0]?calificacionesJuradoData[0]:{}
+    calificaciones: calificacionesData?calificacionesData:{},
+    calificacionesJurado: calificacionesJuradoData?calificacionesJuradoData:{}
   });
 });
 
