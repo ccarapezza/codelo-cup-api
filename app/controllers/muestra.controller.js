@@ -1,9 +1,10 @@
 const db = require("../models");
 const Muestra = db.muestra;
 const Categoria = db.categoria;
+const Participante = db.participante;
 
 exports.hashList = (req, res) => {
-  Muestra.findAll({include: [Categoria]})
+  Muestra.findAll({include: [Categoria, Participante]})
   .then((muestras) => {
     res.status(200).send(muestras.map((muestra)=>{
       return({
@@ -12,7 +13,8 @@ exports.hashList = (req, res) => {
         name: muestra.name,
         description: muestra.description,
         hash: muestra.hash,
-        categoria: muestra.categoria
+        categoria: muestra.categoria,
+        participante: muestra.participante
       })
     }));
   })

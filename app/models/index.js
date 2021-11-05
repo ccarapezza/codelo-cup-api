@@ -56,6 +56,7 @@ db.user.belongsToMany(db.role, {
 db.participante.belongsTo(db.mesa);
 db.participante.hasMany(db.muestra);
 db.participante.belongsTo(db.dojo);
+db.participante.hasMany(db.calificacion);
 
 db.muestra.belongsTo(db.participante);
 db.muestra.belongsTo(db.categoria);

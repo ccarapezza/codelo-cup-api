@@ -34,6 +34,7 @@ exports.addParticipanteToMesa = (req, res) => {
   })
   .then((mesa) => {
     Participante.findOne({
+      include: [ Muestra ],
       where: {
         id: idParticipante
       }
@@ -108,7 +109,12 @@ exports.addMuestraToMesa = (req, res) => {
     where: {
       id: idMesa
     },
-    include: [ Muestra, Participante ]
+    include: [{
+      model: Participante,
+      include: [Muestra],
+    }, {
+      model: Muestra
+    }]
   })
   .then((mesa) => {
     Muestra.findOne({
@@ -117,6 +123,7 @@ exports.addMuestraToMesa = (req, res) => {
       }
     })
     .then((muestra) => {
+      let forbidden = false;
       const participantesDeLaMesa = mesa.participantes;
       for (const participanteDeLaMesa of participantesDeLaMesa) {
           for (const muestra of participanteDeLaMesa.muestras) {
