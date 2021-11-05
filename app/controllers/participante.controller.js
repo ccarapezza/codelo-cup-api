@@ -90,6 +90,8 @@ exports.update = (req, res) => {
 
   Participante.update({
     name: data.name,
+    dojoId: data.dojoId,
+    grow: data.grow,
   }, {
     where: {
       id: data.id
