@@ -32,6 +32,21 @@ module.exports = function (app) {
   ],
   controller.addParticipanteToMesa);
 
+  app.post("/api/mesas/add-participante-secundario", 
+  [
+    authJwt.verifyToken,
+    check('idMesa').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    check('idParticipante').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.addParticipanteSecundarioToMesa);
+
   app.post("/api/mesas/add-muestra", 
   [
     authJwt.verifyToken,
@@ -61,6 +76,21 @@ module.exports = function (app) {
     }
   ],
   controller.removeParticipanteToMesa);
+
+  app.post("/api/mesas/remove-participante-secundario", 
+  [
+    authJwt.verifyToken,
+    check('idMesa').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    check('idParticipante').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.removeParticipanteSecundarioToMesa);
 
   app.post("/api/mesas/remove-muestra", 
   [

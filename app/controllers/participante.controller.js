@@ -210,7 +210,12 @@ exports.findAll = (req, res) => {
         include: [Categoria],
       },
       {
-        model: Mesa
+        model: Mesa,
+        as: "mesa"
+      },
+      {
+        model: Mesa,
+        as: "mesaSecundaria"
       },
       {
         model: Dojo
@@ -259,7 +264,12 @@ exports.getById = (req, res) => {
         model: Muestra,
         include: [Categoria],
       }, {
-        model: Mesa
+        model: Mesa,
+        as: "mesa"
+      },
+      {
+        model: Mesa,
+        as: "mesaSecundaria"
       }],
     where:{
       id: id
@@ -279,7 +289,7 @@ exports.participanteLogin = (req, res) => {
     where: {
       hash: hash,
     },
-    include: [Mesa]
+    include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}]
   }).then((participante) => {
     if(participante){
       res.status(200).send(participante);

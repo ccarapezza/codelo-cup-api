@@ -12,6 +12,11 @@ exports.findAll = (req, res) => {
     }, {
       model: Participante,
       include: [Muestra],
+    },
+    {
+      model: Participante,
+      as: "participantesSecundarios",
+      include: [Muestra],
     } ]
   })
   .then((mesas) => {
@@ -68,6 +73,52 @@ exports.addParticipanteToMesa = (req, res) => {
   });
 };
 
+exports.addParticipanteSecundarioToMesa = (req, res) => {
+  const idParticipante = req.body.idParticipante;
+  const idMesa = req.body.idMesa;
+
+  Mesa.findOne({
+    where: {
+      id: idMesa
+    },
+    include: [ Muestra, {model: Participante, as: "participantesSecundarios"} ]
+  })
+  .then((mesa) => {
+    Participante.findOne({
+      include: [ Muestra ],
+      where: {
+        id: idParticipante
+      }
+    })
+    .then((participante) => {
+      let forbidden = false;
+      const muestrasDelParticipante = participante.muestras;
+      const muestrasDeLaMesa = mesa.muestras;
+      for (const muestraDelParticipante of muestrasDelParticipante) {
+          for (const muestraDeLaMesa of muestrasDeLaMesa) {
+              forbidden = forbidden || muestraDeLaMesa.id === muestraDelParticipante.id;
+          }
+      }
+      if(!forbidden){
+        mesa.addParticipantesSecundario(participante).then((newMesa) => {
+          res.status(200).send({ message: "Participante sec. agregado a la mesa" });
+        })
+        .catch((err) => {
+          res.status(500).send({ message: err.message });
+        });
+      }else{
+        res.status(401).send({ message: "No se puede agregar el participante sec. a esta mesa." });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
 exports.removeParticipanteToMesa = (req, res) => {
   const idParticipante = req.body.idParticipante;
   const idMesa = req.body.idMesa;
@@ -101,6 +152,39 @@ exports.removeParticipanteToMesa = (req, res) => {
   });
 };
 
+exports.removeParticipanteSecundarioToMesa = (req, res) => {
+  const idParticipante = req.body.idParticipante;
+  const idMesa = req.body.idMesa;
+
+  Mesa.findOne({
+    where: {
+      id: idMesa
+    },
+    include: [ Muestra, {model: Participante, as: "participantesSecundarios"} ]
+  })
+  .then((mesa) => {
+    Participante.findOne({
+      where: {
+        id: idParticipante
+      }
+    })
+    .then((participante) => {
+      mesa.removeParticipantesSecundario(participante).then((newMesa) => {
+        res.status(200).send({ message: "Participante sec. eliminado de la mesa" });
+      })
+      .catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
 exports.addMuestraToMesa = (req, res) => {
   const idMuestra = req.body.idMuestra;
   const idMesa = req.body.idMesa;
@@ -112,7 +196,8 @@ exports.addMuestraToMesa = (req, res) => {
     include: [{
       model: Participante,
       include: [Muestra],
-    }, {
+    },
+    {
       model: Muestra
     }]
   })

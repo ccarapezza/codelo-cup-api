@@ -143,7 +143,7 @@ exports.resultados = (req, res) => {
         Categoria],
     },{
       model: Participante,
-      include: [Mesa],
+      include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}],
     }],
   }).then((calificaciones) => {
     res.status(200).send({ calificaciones: calificaciones });
@@ -175,7 +175,7 @@ exports.findByMuestraHash = (req, res) => {
         },
         {
           model: Participante,
-          include: [Mesa],
+          include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}],
         }
       ]
     }).then((calificaciones) => {

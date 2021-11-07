@@ -53,7 +53,18 @@ db.user.belongsToMany(db.role, {
   otherKey: "roleId",
 });
 
-db.participante.belongsTo(db.mesa);
+db.participante.belongsTo(db.mesa, {
+  foreignKey: {
+    name: 'mesaId'
+  }
+});
+db.participante.belongsTo(db.mesa, {
+  as: "mesaSecundaria",
+  foreignKey: {
+    name: 'mesaSecundariaId'
+  }
+});
+
 db.participante.hasMany(db.muestra);
 db.participante.belongsTo(db.dojo);
 db.participante.hasMany(db.calificacion);
@@ -66,7 +77,17 @@ db.muestra.belongsToMany(db.mesa, {
   otherKey: "mesaId",
 });
 
-db.mesa.hasMany(db.participante);
+db.mesa.hasMany(db.participante, {
+  foreignKey: {
+    name: 'mesaId'
+  }
+});
+db.mesa.hasMany(db.participante, {
+  as: "participantesSecundarios",
+  foreignKey: {
+    name: 'mesaSecundariaId'
+  }
+});
 db.mesa.belongsToMany(db.muestra, {
   through: "muestra_mesa",
   foreignKey: "mesaId",
