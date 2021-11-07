@@ -24,7 +24,8 @@ exports.validar = (req, res) => {
     if(parseInt(muestra.participanteId)===parseInt(participanteId)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
-      if(muestra?.mesas?.map((mesa)=>mesa.id).includes(participante?.mesa?.id)||esJurado){
+      const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
+      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
         Calificacion.findOne({
           include: [ Muestra ],
           where: {
@@ -81,7 +82,8 @@ exports.calificar = (req, res) => {
     if(parseInt(muestra.participanteId)===parseInt(participante?.id)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
-      if(muestra?.mesas?.map((mesa)=>mesa.id).includes(participante?.mesa?.id)||esJurado){
+      const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
+      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
         Calificacion.findOne({
           where: {
             participanteId: participante?.id,
