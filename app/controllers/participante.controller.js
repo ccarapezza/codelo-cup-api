@@ -14,7 +14,7 @@ exports.create = async(req, res) => {
   const participantesN = await Participante.findAll({raw: true, attributes: ['n']});
   const usedParticipantesNs = participantesN.map((participante)=>participante.n);
   let availableParticipantesN = new Array();
-  for(let i=1; i<200; i++){
+  for(let i=1; i<120; i++){
     if(!usedParticipantesNs.includes(i)){
       availableParticipantesN.push(i);
     }
@@ -24,7 +24,7 @@ exports.create = async(req, res) => {
   const muestraN = await Muestra.findAll({raw: true, attributes: ['n']});
   const usedMuestrasNs = muestraN.map((muestra)=>muestra.n);
   let availableMuestraN = new Array();
-  for(let i=1; i<200; i++){
+  for(let i=1; i<120; i++){
     if(!usedMuestrasNs.includes(i)){
       availableMuestraN.push(i);
     }
@@ -64,7 +64,7 @@ exports.createJurado = async(req, res) => {
   const participantesN = await Participante.findAll({raw: true, attributes: ['n']});
   const usedParticipantesNs = participantesN.map((participante)=>participante.n);
   let availableParticipantesN = new Array();
-  for(let i=1; i<200; i++){
+  for(let i=1; i<120; i++){
     if(!usedParticipantesNs.includes(i)){
       availableParticipantesN.push(i);
     }
@@ -128,7 +128,7 @@ exports.addMuestra = async(req, res) => {
   const muestraN = await Muestra.findAll({raw: true, attributes: ['n']});
   const usedMuestrasNs = muestraN.map((muestra)=>muestra.n);
   let availableMuestraN = new Array();
-  for(let i=1; i<200; i++){
+  for(let i=1; i<120; i++){
     if(!usedMuestrasNs.includes(i)){
       availableMuestraN.push(i);
     }
