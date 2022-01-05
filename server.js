@@ -122,12 +122,6 @@ function initial() {
       user.setRoles([1]);
   });
 
-  for (let index= 1; index < 10; index++) {
-      Mesa.create({
-      name: "Mesa "+index,
-      });  
-  }
-
   Categoria.create({
       name: "Exterior",
   });
