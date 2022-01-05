@@ -1,6 +1,5 @@
 const db = require("../models");
 const Participante = db.participante;
-const Mesa = db.mesa;
 
 verifyHash = (req, res, next) => {
   let hash = req.headers["x-access-hash"];
@@ -14,8 +13,7 @@ verifyHash = (req, res, next) => {
   Participante.findOne({
     where: {
       hash: hash,
-    },
-    include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}]
+    }
   }).then((participante) => {
     if(participante){
       req.participante = participante?.toJSON();

@@ -3,7 +3,6 @@ const config = require("../config/auth.config.js");
 const db = require("../models");
 const User = db.user;
 const Participante = db.participante;
-const Mesa = db.mesa;
 
 verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
@@ -33,8 +32,7 @@ verifyTokenOrJudgeHash = (req, res, next) => {
     Participante.findOne({
       where: {
         hash: hash,
-      },
-      include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}]
+      }
     }).then((participante) => {
       if(participante&&participante?.esJurado){
         req.participante = participante?.toJSON();

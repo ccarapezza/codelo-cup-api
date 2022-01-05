@@ -17,7 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // database
 const db = require("./app/models");
-const Mesa = db.mesa;
 const Muestra = db.muestra;
 const Participante = db.participante;
 const Calificacion = db.calificacion;
@@ -35,13 +34,6 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/data", async (req, res) => {
-
-  const mesaData = await Mesa.findAll({
-    include : [
-      { model: Participante, required: false, attributes: ["id", "n", "name"], include:[Calificacion] , where: {esJurado: false} },
-      { model: Muestra, required: false, attributes: ["id", "n", "name"] }
-    ]
-  });
 
   const calificacionesData = await Calificacion.findAll({
     include: [{
@@ -80,7 +72,6 @@ app.get("/api/data", async (req, res) => {
   });
   
   res.json({
-    mesaData: mesaData,
     participantes: participanteData[0],
     jurados: juradoData[0],
     muestras: muestrasData[0],
@@ -95,7 +86,6 @@ require("./app/routes/participante.routes")(app);
 require("./app/routes/calificacion.routes")(app);
 require("./app/routes/muestra.routes")(app);
 require("./app/routes/categoria.routes")(app);
-require("./app/routes/mesa.routes")(app);
 require("./app/routes/dojo.routes")(app);
 
 // set port, listen for requests

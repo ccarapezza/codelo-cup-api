@@ -3,7 +3,6 @@ const Participante = db.participante;
 const Muestra = db.muestra;
 const Calificacion = db.calificacion;
 const Categoria = db.categoria;
-const Mesa = db.mesa;
 const Dojo = db.dojo;
 const Op = db.Sequelize.Op;
 const crypto = require('crypto');
@@ -210,14 +209,6 @@ exports.findAll = (req, res) => {
         include: [Categoria],
       },
       {
-        model: Mesa,
-        as: "mesa"
-      },
-      {
-        model: Mesa,
-        as: "mesaSecundaria"
-      },
-      {
         model: Dojo
       }],
     where:{
@@ -240,9 +231,6 @@ exports.findJuradosAll = (req, res) => {
         include: [Categoria],
       },
       {
-        model: Mesa
-      },
-      {
         model: Dojo
       }],
     where:{
@@ -263,14 +251,8 @@ exports.getById = (req, res) => {
     include: [{
         model: Muestra,
         include: [Categoria],
-      }, {
-        model: Mesa,
-        as: "mesa"
-      },
-      {
-        model: Mesa,
-        as: "mesaSecundaria"
-      }],
+      }
+    ],
     where:{
       id: id
     }
@@ -288,8 +270,7 @@ exports.participanteLogin = (req, res) => {
   Participante.findOne({
     where: {
       hash: hash,
-    },
-    include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}]
+    }
   }).then((participante) => {
     if(participante){
       res.status(200).send(participante);

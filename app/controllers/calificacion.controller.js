@@ -3,7 +3,6 @@ const Calificacion = db.calificacion;
 const Participante = db.participante;
 const Categoria = db.categoria;
 const Muestra = db.muestra;
-const Mesa = db.mesa;
 const Dojo = db.dojo;
 const Op = db.Sequelize.Op;
 
@@ -18,14 +17,12 @@ exports.validar = (req, res) => {
       hash:{
         [Op.eq]: data.hashMuestra
       }
-    },
-    include: [ Mesa ]
+    }
   }).then((muestra) => {
     if(parseInt(muestra.participanteId)===parseInt(participanteId)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
-      const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
-      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
+
         Calificacion.findOne({
           include: [ Muestra ],
           where: {
@@ -56,9 +53,7 @@ exports.validar = (req, res) => {
         .catch((err) => {
           res.status(500).send({ message: err.message });
         });
-      }else{
-        res.status(401).send({ message: "No tiene permisos para calificar esta muestra" });
-      }
+
     }
   })
   .catch((err) => {
@@ -76,57 +71,50 @@ exports.calificar = (req, res) => {
       hash:{
         [Op.eq]: data.hashMuestra
       }
-    },
-    include: [ Mesa ]
+    }
   }).then((muestra) => {
     if(parseInt(muestra.participanteId)===parseInt(participante?.id)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
-      const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
-      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
-        Calificacion.findOne({
-          where: {
-            participanteId: participante?.id,
+      Calificacion.findOne({
+        where: {
+          participanteId: participante?.id,
+          muestraId: muestra.id,
+        }
+      }).then((calificacion) => {
+        if(calificacion){//Update existent
+          calificacion.presentacion = data.presentacion;
+          calificacion.aromaPrendido = data.aromaPrendido;
+          calificacion.aromaApagado = data.aromaApagado;
+          calificacion.saborPrendido = data.saborPrendido;
+          calificacion.saborApagado = data.saborApagado;
+          calificacion.save().then((calificacion) => {
+            res.status(200).send({ calificacion: calificacion });
+          }).catch((err) => {
+            res.status(500).send({ message: err.message });
+          });
+        }else{//Create new
+          Calificacion.create({
             muestraId: muestra.id,
-          }
-        }).then((calificacion) => {
-          if(calificacion){//Update existent
-            calificacion.presentacion = data.presentacion;
-            calificacion.aromaPrendido = data.aromaPrendido;
-            calificacion.aromaApagado = data.aromaApagado;
-            calificacion.saborPrendido = data.saborPrendido;
-            calificacion.saborApagado = data.saborApagado;
-            calificacion.save().then((calificacion) => {
-              res.status(200).send({ calificacion: calificacion });
-            }).catch((err) => {
-              res.status(500).send({ message: err.message });
-            });
-          }else{//Create new
-            Calificacion.create({
-              muestraId: muestra.id,
-              participanteId: participante.id,
-              presentacion: data.presentacion,
-              aromaPrendido: data.aromaPrendido,
-              aromaApagado: data.aromaApagado,
-              saborPrendido: data.saborPrendido,
-              saborApagado: data.saborApagado
-            })
-            .then((calificacion) => {
-              res.status(200).send({ calificacion: calificacion });
-            })
-            .catch((err) => {
-              res.status(500).send({ message: err.message });
-            }); 
-          }
-        })
-        .catch((err) => {
-          res.status(500).send({ message: err.message });
-        });
-      }else{
-        res.status(401).send({ message: "No tiene permisos para calificar esta muestra" });
-      }
+            participanteId: participante.id,
+            presentacion: data.presentacion,
+            aromaPrendido: data.aromaPrendido,
+            aromaApagado: data.aromaApagado,
+            saborPrendido: data.saborPrendido,
+            saborApagado: data.saborApagado
+          })
+          .then((calificacion) => {
+            res.status(200).send({ calificacion: calificacion });
+          })
+          .catch((err) => {
+            res.status(500).send({ message: err.message });
+          }); 
+        }
+      })
+      .catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
     }
-
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
@@ -140,12 +128,11 @@ exports.resultados = (req, res) => {
       include: [
         {
           model: Participante,
-          include: [Dojo, Mesa],
+          include: [Dojo],
         },
         Categoria],
     },{
-      model: Participante,
-      include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}],
+      model: Participante
     }],
   }).then((calificaciones) => {
     res.status(200).send({ calificaciones: calificaciones });
@@ -167,7 +154,7 @@ exports.findByMuestraHash = (req, res) => {
           include: [
             {
               model: Participante,
-              include: [Dojo, Mesa],
+              include: [Dojo],
             },
             Categoria
           ],
@@ -176,8 +163,7 @@ exports.findByMuestraHash = (req, res) => {
           },
         },
         {
-          model: Participante,
-          include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}],
+          model: Participante
         }
       ]
     }).then((calificaciones) => {
