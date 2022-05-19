@@ -30,7 +30,7 @@ db.sequelize.sync();
 // simple route
 app.get("/", (req, res) => {
   res.json({
-    message: "Bienvenido CodeloCup API. (" + process.env.NODE_ENV + ")",
+    message: "Bienvenido CodeloCup API. MAIN (" + process.env.NODE_ENV + ")",
   });
 });
 
