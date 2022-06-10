@@ -123,7 +123,7 @@ function initial() {
       name: "admin",
   });
 
-  User.create({
+  /*User.create({
       username: "admin",
       email: "admin@admin.com",
       password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
@@ -133,10 +133,10 @@ function initial() {
       password: "$2a$08$7ceHWSMUYjCJbW8Aal8BVuTLqKn8LBjwWgKlV0tpx5S6DzeBLzmqC", //QKfbt4fLAT
       password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
       */
-  }).then((user) => {
+  /*}).then((user) => {
       user.setRoles([1]);
-  });
-
+  });*/
+  
   for (let index= 1; index < 10; index++) {
       Mesa.create({
         name: "Mesa "+index,
