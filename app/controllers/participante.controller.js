@@ -338,3 +338,34 @@ exports.calificaciones = (req, res) => {
     res.status(500).send({ message: err.message });
   });
 };
+
+exports.getByDni = (req, res) => {
+  const dni = req.query.dni;
+  Participante.findOne({
+    include: [{
+        model: Muestra,
+        include: [Categoria],
+      }, {
+        model: Mesa,
+        as: "mesa"
+      },
+      {
+        model: Mesa,
+        as: "mesaSecundaria"
+      }],
+    where:{
+      dni: dni
+    }
+  })
+  .then((participante) => {
+    res.status(200).send({
+      ...participante,
+      categoria: participante.muestras.map((muestra)=>{
+        return (muestra.categoria.name)
+      })
+    });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+}
