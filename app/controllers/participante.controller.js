@@ -32,6 +32,7 @@ exports.create = async(req, res) => {
 
   Participante.create({
     name: data.name,
+    dni: data.dni,
     dojoId: data.dojoId,
     grow: data.grow,
     n: n,
@@ -73,6 +74,7 @@ exports.createJurado = async(req, res) => {
 
   Participante.create({
     name: data.name,
+    dni: data.dni,
     esJurado: true,
     n: n,
     hash: crypto.createHash('sha1').update(data.id+data.name+new Date().getTime().toString()).digest('hex')
@@ -145,6 +147,7 @@ exports.addMuestra = async(req, res) => {
     Muestra.create({
       n: n,
       name: data.name,
+      dni: data.dni,
       description: data.description,
       categoriaId: data.categoriaId,
       hash: crypto.createHash('sha1').update(participanteId+data.name+new Date().getTime().toString()).digest('hex')
@@ -171,6 +174,7 @@ exports.updateMuestra = (req, res) => {
 
   Muestra.update({
     name: data.name,
+    dni: data.dni,
     description: data.description,
     categoriaId: data.categoriaId,
   }, {

@@ -37,6 +37,51 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/api/participante-by-dni",
+  [
+    authJwt.verifyToken,
+    check('id').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ]
+  ,
+  (req, res) => {
+    const dni = req.query.dni;
+    Participante.findOne({
+      include: [{
+          model: Muestra,
+          include: [Categoria],
+        }, {
+          model: Mesa,
+          as: "mesa"
+        },
+        {
+          model: Mesa,
+          as: "mesaSecundaria"
+        }],
+      where:{
+        dni: dni
+      }
+    })
+    .then((participante) => {
+      res.status(200).send({
+        ...participante,
+        categoria: participante.muestras.map((muestra)=>{
+          return (muestra.categoria.name)
+        })
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  });
+
+
 app.get("/api/data", async (req, res) => {
 
   const mesaData = await Mesa.findAll({

@@ -6,6 +6,10 @@ module.exports = (sequelize, Sequelize) => {
     name: {
       type: Sequelize.STRING
     },
+    dni: {
+      type: Sequelize.STRING,
+      unique: true,
+    },
     hash: {
       type: Sequelize.STRING
     },
