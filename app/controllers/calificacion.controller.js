@@ -19,7 +19,7 @@ exports.validar = (req, res) => {
         [Op.eq]: data.hashMuestra
       }
     },
-    include: [ Mesa ]
+    include: [ Mesa, Categoria ]
   }).then((muestra) => {
     if(parseInt(muestra.participanteId)===parseInt(participanteId)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
@@ -40,7 +40,7 @@ exports.validar = (req, res) => {
             res.status(200).send({
               id: muestra.id,
               muestraN: calificacion.muestra.n,
-              labels: calificacion.muestra.categoria.labels.split(","),
+              labels: muestra.categoria.labels.split(","),
               calificacion: {
                 id: calificacion.id,
                 valores: calificacion.valores.split(",").map((currentValor, index)=>{
@@ -55,7 +55,7 @@ exports.validar = (req, res) => {
               }
             });
           }else{
-            res.status(200).send({ id: muestra.id, muestraN: muestra.n, labels: calificacion.muestra.categoria.labels.split(",") });
+            res.status(200).send({ id: muestra.id, muestraN: muestra.n, labels: muestra.categoria.labels.split(",") });
           }
         })
         .catch((err) => {
@@ -144,14 +144,18 @@ exports.resultados = (req, res) => {
       model: Participante,
       include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}],
     }],
+    nest: true
   }).then((calificaciones) => {
     res.status(200).send({
-      calificaciones: calificaciones.map((calificacion)=>{
+      calificaciones: calificaciones.map((currentcalificacion)=>{
+        const calificacion = currentcalificacion.toJSON();
+        const valores = calificacion.valores.split(",");
+        const labels = calificacion.muestra.categoria.labels.split(",");
         return({
           ...calificacion,
-          valores: calificacion.valores.split(",").map((currentValor, index)=>{
+          valores: valores.map((currentValor, index)=>{
             return({
-              label: calificacion.muestra.categoria.labels.split(",")[index],
+              label: labels[index],
               valor: parseFloat(currentValor)
             })
           })
@@ -168,7 +172,9 @@ exports.findByMuestraHash = (req, res) => {
   const hashMuestra = req.body.hashMuestra;
   const participante = req.participante;
   const esJurado = participante?.esJurado;
-  if(esJurado){
+  const esUser = req.userId?true:false;
+  
+  if(esJurado||esUser){
     Calificacion.findAll({
       include: [
         {
@@ -196,6 +202,6 @@ exports.findByMuestraHash = (req, res) => {
       res.status(500).send({ message: err.message });
     });
   }else{
-    res.status(401).send({ message: err.message });
+    res.status(401).send({ message: "Unauthorized" });
   }
 };

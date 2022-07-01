@@ -5,6 +5,7 @@ exports.create = (req, res) => {
   const data = req.body;
   Categoria.create({
     name: data.name,
+    labels: data.labels,
   })
   .then((categoria) => {
     res.status(200).send(categoria);
@@ -19,6 +20,7 @@ exports.update = (req, res) => {
 
   Categoria.update({
     name: data.name,
+    labels: data.labels,
   }, {
     where: {
       id: data.id
