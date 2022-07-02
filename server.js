@@ -26,11 +26,13 @@ const Role = db.role;
 const User = db.user;
 
 
+/*
 db.sequelize.sync();
-/*db.sequelize.sync({ force: true }).then(() => {
+*/
+db.sequelize.sync({ force: true }).then(() => {
   console.log("Drop and Resync Database with { force: true }");
   initial();
-});*/
+});
 
 // simple route
 app.get("/", (req, res) => {
