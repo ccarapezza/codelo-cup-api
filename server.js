@@ -113,56 +113,6 @@ app.listen(PORT, () => {
 
 function initial() {
   Role.create({
-<<<<<<< HEAD
-      id: 1,
-      name: "user",
-  });
-
-  Role.create({
-      id: 2,
-      name: "moderator",
-  });
-
-  Role.create({
-      id: 3,
-      name: "admin",
-  });
-
-  /*User.create({
-      username: "admin",
-      email: "admin@admin.com",
-      password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
-      /*
-      password: "$2a$08$ANDS1Yo6EQSQfzHQoybU2eBCR.3Ut6t4AL099R8hI3J.NE.o4vEaW", //23737nefasta
-      password: "$2a$08$r7xBr0LQtrwkFjm27mNyountfloLujhhNF/6Adzl./VecMGUi0gVu", //c0p43d3n
-      password: "$2a$08$7ceHWSMUYjCJbW8Aal8BVuTLqKn8LBjwWgKlV0tpx5S6DzeBLzmqC", //QKfbt4fLAT
-      password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
-      */
-  /*}).then((user) => {
-      user.setRoles([1]);
-  });*/
-  
-  for (let index= 1; index < 10; index++) {
-      Mesa.create({
-        name: "Mesa "+index,
-      });  
-  }
-
-  Categoria.create({
-      name: "Exterior",
-  });
-
-  Categoria.create({
-      name: "Interior",
-  });
-
-  Categoria.create({
-      name: "Rosin",
-  });
-
-  Categoria.create({
-      name: "Hash",
-=======
     id: 1,
     name: "user",
   });
@@ -180,12 +130,18 @@ function initial() {
   User.create({
     username: "admin",
     email: "admin@admin.com",
-    password: "$2a$08$ANDS1Yo6EQSQfzHQoybU2eBCR.3Ut6t4AL099R8hI3J.NE.o4vEaW",
+    password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
+    /*
+    password: "$2a$08$ANDS1Yo6EQSQfzHQoybU2eBCR.3Ut6t4AL099R8hI3J.NE.o4vEaW", //23737nefasta
+    password: "$2a$08$r7xBr0LQtrwkFjm27mNyountfloLujhhNF/6Adzl./VecMGUi0gVu", //c0p43d3n
+    password: "$2a$08$7ceHWSMUYjCJbW8Aal8BVuTLqKn8LBjwWgKlV0tpx5S6DzeBLzmqC", //QKfbt4fLAT
+    password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
+    */
   }).then((user) => {
     user.setRoles([1]);
   });
 
-  for (let index= 0; index < 6; index++) {
+  for (let index= 1; index < 7; index++) {
     Mesa.create({
       name: "Mesa "+index,
     });  
@@ -202,8 +158,7 @@ function initial() {
   });
 
   Categoria.create({
-    name: "Hash",
-    labels: "Presentación,Aroma Apagado,Aroma Prendido,Sabor"
->>>>>>> 231bef6... Se agregan valores en forma de array
+    name: "Rosin",
+    labels: "Presentación,Aroma,Sabor,Residuo"
   });
 }
