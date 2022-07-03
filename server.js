@@ -25,6 +25,8 @@ const Categoria = db.categoria;
 const Role = db.role;
 const User = db.user;
 
+
+//db.sequelize.sync();
 db.sequelize.sync({ force: true }).then(() => {
   console.log("Drop and Resync Database with { force: true }");
   initial();
@@ -109,6 +111,7 @@ app.listen(PORT, () => {
 
 function initial() {
   Role.create({
+<<<<<<< HEAD
       id: 1,
       name: "user",
   });
@@ -157,5 +160,48 @@ function initial() {
 
   Categoria.create({
       name: "Hash",
+=======
+    id: 1,
+    name: "user",
+  });
+
+  Role.create({
+    id: 2,
+    name: "moderator",
+  });
+
+  Role.create({
+    id: 3,
+    name: "admin",
+  });
+
+  User.create({
+    username: "admin",
+    email: "admin@admin.com",
+    password: "$2a$08$ANDS1Yo6EQSQfzHQoybU2eBCR.3Ut6t4AL099R8hI3J.NE.o4vEaW",
+  }).then((user) => {
+    user.setRoles([1]);
+  });
+
+  for (let index= 0; index < 6; index++) {
+    Mesa.create({
+      name: "Mesa "+index,
+    });  
+  }
+
+  Categoria.create({
+    name: "Exterior",
+    labels: "Presentación,Aroma en Flor,Aroma Picado,Sabor Apagado,Sabor Prendido"
+  });
+
+  Categoria.create({
+    name: "Interior",
+    labels: "Presentación,Aroma en Flor,Aroma Picado,Sabor Apagado,Sabor Prendido"
+  });
+
+  Categoria.create({
+    name: "Hash",
+    labels: "Presentación,Aroma Apagado,Aroma Prendido,Sabor"
+>>>>>>> 231bef6... Se agregan valores en forma de array
   });
 }

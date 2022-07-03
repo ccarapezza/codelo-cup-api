@@ -16,6 +16,7 @@ module.exports = function (app) {
     [
       authJwt.verifyToken,
       check('name').exists({checkFalsy: true}),
+      check('labels').exists({checkFalsy: true}),
       (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -33,6 +34,7 @@ module.exports = function (app) {
       authJwt.verifyToken,
       check('id').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
       check('name').exists({checkFalsy: true}),
+      check('labels').exists({checkFalsy: true}),
       (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

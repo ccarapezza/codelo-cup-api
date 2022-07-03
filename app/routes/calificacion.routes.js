@@ -12,6 +12,17 @@ const validateCalificacion = (calificacion) =>{
   return false;
 }
 
+const validateValores = (valores) =>{
+  const valoresArray = valores.split(",");
+  for (let i = 0; i < valoresArray.length; i++) {
+    const calificacionFloat = parseFloat(valoresArray[i]);
+    if(!(calificacionFloat<=10&&calificacionFloat>=1)){
+      return false;
+    }
+  }
+  return true;
+}
+
 module.exports = function (app) {
   app.use(function (req, res, next) {
     res.header(
@@ -42,11 +53,7 @@ module.exports = function (app) {
     [
       authParticipanteHash.verifyHash,
       check('hashMuestra').exists({checkFalsy: true}).isString(),
-      check('presentacion').exists({checkFalsy: true}).custom((value, { req }) => {return validateCalificacion(value);}),
-      check('aromaPrendido').exists({checkFalsy: true}).custom((value, { req }) => {return validateCalificacion(value);}),
-      check('aromaApagado').exists({checkFalsy: true}).custom((value, { req }) => {return validateCalificacion(value);}),
-      check('saborPrendido').exists({checkFalsy: true}).custom((value, { req }) => {return validateCalificacion(value);}),
-      check('saborApagado').exists({checkFalsy: true}).custom((value, { req }) => {return validateCalificacion(value);}),
+      check('valores').exists({checkFalsy: true}).custom((value, { req }) => {return validateValores(value);}),
       (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

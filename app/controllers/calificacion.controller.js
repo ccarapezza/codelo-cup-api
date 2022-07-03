@@ -27,7 +27,10 @@ exports.validar = (req, res) => {
       const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
       if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
         Calificacion.findOne({
-          include: [ Muestra ],
+          include: [ {
+            model: Muestra,
+            include: [Categoria],
+          }],
           where: {
             participanteId: participanteId,
             muestraId: muestra.id
@@ -37,20 +40,22 @@ exports.validar = (req, res) => {
             res.status(200).send({
               id: muestra.id,
               muestraN: calificacion.muestra.n,
+              labels: calificacion.muestra.categoria.labels.split(","),
               calificacion: {
                 id: calificacion.id,
-                presentacion: calificacion.presentacion,
-                aromaPrendido: calificacion.aromaPrendido,
-                aromaApagado: calificacion.aromaApagado,
-                saborPrendido: calificacion.saborPrendido,
-                saborApagado: calificacion.saborApagado,
+                valores: calificacion.valores.split(",").map((currentValor, index)=>{
+                  return({
+                    label: calificacion.muestra.categoria.labels.split(",")[index],
+                    valor: parseFloat(currentValor)
+                  })
+                }),
                 createdAt: calificacion.createdAt,
                 updatedAt: calificacion.updatedAt,
                 participanteId: calificacion.participanteId,
               }
             });
           }else{
-            res.status(200).send({ id: muestra.id, muestraN: muestra.n });
+            res.status(200).send({ id: muestra.id, muestraN: muestra.n, labels: calificacion.muestra.categoria.labels.split(",") });
           }
         })
         .catch((err) => {
@@ -91,11 +96,7 @@ exports.calificar = (req, res) => {
           }
         }).then((calificacion) => {
           if(calificacion){//Update existent
-            calificacion.presentacion = data.presentacion;
-            calificacion.aromaPrendido = data.aromaPrendido;
-            calificacion.aromaApagado = data.aromaApagado;
-            calificacion.saborPrendido = data.saborPrendido;
-            calificacion.saborApagado = data.saborApagado;
+            calificacion.valores = data.valores;
             calificacion.save().then((calificacion) => {
               res.status(200).send({ calificacion: calificacion });
             }).catch((err) => {
@@ -105,11 +106,7 @@ exports.calificar = (req, res) => {
             Calificacion.create({
               muestraId: muestra.id,
               participanteId: participante.id,
-              presentacion: data.presentacion,
-              aromaPrendido: data.aromaPrendido,
-              aromaApagado: data.aromaApagado,
-              saborPrendido: data.saborPrendido,
-              saborApagado: data.saborApagado
+              valores: data.valores
             })
             .then((calificacion) => {
               res.status(200).send({ calificacion: calificacion });
@@ -148,7 +145,19 @@ exports.resultados = (req, res) => {
       include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}],
     }],
   }).then((calificaciones) => {
-    res.status(200).send({ calificaciones: calificaciones });
+    res.status(200).send({
+      calificaciones: calificaciones.map((calificacion)=>{
+        return({
+          ...calificacion,
+          valores: calificacion.valores.split(",").map((currentValor, index)=>{
+            return({
+              label: calificacion.muestra.categoria.labels.split(",")[index],
+              valor: parseFloat(currentValor)
+            })
+          })
+        })
+      }) 
+    });
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });

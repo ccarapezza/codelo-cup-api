@@ -313,16 +313,20 @@ exports.calificaciones = (req, res) => {
         [Op.eq]: participanteId
       }
     },
-    include: [ Muestra ]
+    include: [{
+      model: Muestra,
+      include: [Categoria],
+    }],
   }).then((calificaciones) => {
     res.status(200).send({ calificaciones:
       calificaciones.map((calificacion)=>{
         return({
-          presentacion: calificacion.presentacion,
-          aromaApagado: calificacion.aromaApagado,
-          aromaPrendido: calificacion.aromaPrendido,
-          saborApagado: calificacion.saborApagado,
-          saborPrendido: calificacion.saborPrendido,
+          valores: calificacion.valores.split(",").map((currentValor, index)=>{
+            return({
+              label: calificacion.muestra.categoria.labels.split(",")[index],
+              valor: parseFloat(currentValor)
+            })
+          }),
           createdAt: calificacion.createdAt,
           updatedAt: calificacion.updatedAt,
           muestra:{
