@@ -370,7 +370,7 @@ exports.getByDni = (req, res) => {
         dni: oParticipante.dni,
         mesa:{
           id: oParticipante.mesa.id,
-          name: oParticipante.mesa.id
+          name: oParticipante.mesa.name
         },
         categoria: oParticipante.muestras.map((muestra)=>{
           return (muestra.categoria.name)
