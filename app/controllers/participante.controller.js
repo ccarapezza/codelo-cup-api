@@ -362,12 +362,17 @@ exports.getByDni = (req, res) => {
     }
   })
   .then((participante) => {
-    res.status(200).send({
-      ...participante,
-      categoria: participante.muestras.map((muestra)=>{
-        return (muestra.categoria.name)
-      })
-    });
+    if(participante){
+      const oParticipante = participante.toJSON();
+      res.status(200).send({
+        ...oParticipante,
+        categoria: oParticipante.muestras.map((muestra)=>{
+          return (muestra.categoria.name)
+        })
+      });
+    }else{
+      res.status(400).send({ message: "Participante no encontrado..." });  
+    }
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
