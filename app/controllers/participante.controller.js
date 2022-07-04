@@ -367,7 +367,7 @@ exports.getByDni = (req, res) => {
       res.status(200).send({
         n: oParticipante.n,
         esJurado: oParticipante.esJurado,
-        dni: oParticipante,
+        dni: oParticipante.dni,
         mesa:{
           id: oParticipante.mesa.id,
           name: oParticipante.mesa.id
