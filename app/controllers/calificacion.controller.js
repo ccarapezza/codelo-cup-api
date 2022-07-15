@@ -101,7 +101,7 @@ exports.calificar = (req, res) => {
     }else{
       const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
       //Categorias de las mesas del participante
-      const categoriasMesa = participante?.mesa?.categorias?.map((categoria)=>categoria.id);
+      var categoriasMesa = participante?.mesa?.categorias?.map((categoria)=>categoria.id);
       if(!categoriasMesa){
         categoriasMesa = [];
       }
