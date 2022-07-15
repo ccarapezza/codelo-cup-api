@@ -17,6 +17,9 @@ exports.findAll = (req, res) => {
       model: Participante,
       as: "participantesSecundarios",
       include: [Muestra],
+    },
+    {
+      model: Categoria
     } ]
   })
   .then((mesas) => {
@@ -235,6 +238,39 @@ exports.addMuestraToMesa = (req, res) => {
   });
 };
 
+exports.addCategoriaToMesa = (req, res) => {
+  const idCategoria = req.body.idCategoria;
+  const idMesa = req.body.idMesa;
+
+  Mesa.findOne({
+    where: {
+      id: idMesa
+    }
+  })
+  .then((mesa) => {
+    Categoria.findOne({
+      where: {
+        id: idCategoria
+      }
+    })
+    .then((categoria) => {
+      mesa.addCategoria(categoria).then((newMesa) => {
+        res.status(200).send({ message: "Categoría agregada a la mesa" });
+      })
+      .catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
+      
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
 exports.removeMuestraToMesa = (req, res) => {
   const idMuestra = req.body.idMuestra;
   const idMesa = req.body.idMesa;
@@ -254,6 +290,38 @@ exports.removeMuestraToMesa = (req, res) => {
     .then((muestra) => {
       mesa.removeMuestra(muestra).then((newMesa) => {
         res.status(200).send({ message: "Muestra eliminada de la mesa" });
+      })
+      .catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
+exports.removeCategoriaToMesa = (req, res) => {
+  const idCategoria = req.body.idCategoria;
+  const idMesa = req.body.idMesa;
+
+  Mesa.findOne({
+    where: {
+      id: idMesa
+    }
+  })
+  .then((mesa) => {
+    Categoria.findOne({
+      where: {
+        id: idCategoria
+      }
+    })
+    .then((categoria) => {
+      mesa.removeCategoria(categoria).then((newMesa) => {
+        res.status(200).send({ message: "Categoría eliminada de la mesa" });
       })
       .catch((err) => {
         res.status(500).send({ message: err.message });

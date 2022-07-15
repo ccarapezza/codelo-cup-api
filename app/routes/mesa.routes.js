@@ -62,6 +62,21 @@ module.exports = function (app) {
   ],
   controller.addMuestraToMesa);
 
+  app.post("/api/mesas/add-categoria", 
+  [
+    authJwt.verifyToken,
+    check('idMesa').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    check('idCategoria').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.addCategoriaToMesa);
+
   app.post("/api/mesas/remove-participante", 
   [
     authJwt.verifyToken,
@@ -106,6 +121,21 @@ module.exports = function (app) {
     }
   ],
   controller.removeMuestraToMesa);
+
+  app.post("/api/mesas/remove-categoria", 
+  [
+    authJwt.verifyToken,
+    check('idMesa').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    check('idCategoria').exists({checkFalsy: true}).custom((value, { req }) => {return !isNaN(value)}),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ],
+  controller.removeCategoriaToMesa);
 
   app.post("/api/mesas/create", 
   [
