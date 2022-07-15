@@ -40,6 +40,10 @@ exports.validar = (req, res) => {
             res.status(200).send({
               id: muestra.id,
               muestraN: calificacion.muestra.n,
+              categoria: {
+                id: muestra.categoria.id,
+                name:muestra.categoria.name
+              },
               labels: muestra.categoria.labels.split(","),
               calificacion: {
                 id: calificacion.id,
@@ -55,7 +59,15 @@ exports.validar = (req, res) => {
               }
             });
           }else{
-            res.status(200).send({ id: muestra.id, muestraN: muestra.n, labels: muestra.categoria.labels.split(",") });
+            res.status(200).send({
+              id: muestra.id,
+              muestraN: muestra.n,
+              categoria: {
+                id: muestra.categoria.id,
+                name:muestra.categoria.name
+              },
+              labels: muestra.categoria.labels.split(",")
+            });
           }
         })
         .catch((err) => {
