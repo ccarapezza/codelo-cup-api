@@ -82,13 +82,17 @@ exports.calificar = (req, res) => {
         [Op.eq]: data.hashMuestra
       }
     },
-    include: [ Mesa ]
+    include: [ Mesa, Categoria ]
   }).then((muestra) => {
     if(parseInt(muestra.participanteId)===parseInt(participante?.id)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
       const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
-      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
+      //Categorias de las mesas del participante
+      const categoriasMesa = participante?.mesa?.categorias?.map((categoria)=>categoria.id);
+      categoriasMesa.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
+
+      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado){
         Calificacion.findOne({
           where: {
             participanteId: participante?.id,

@@ -93,6 +93,11 @@ db.mesa.belongsToMany(db.muestra, {
   foreignKey: "mesaId",
   otherKey: "muestraId",
 });
+db.mesa.hasMany(db.categoria, {
+  foreignKey: {
+    name: 'categoriaId'
+  }
+});
 
 db.calificacion.belongsTo(db.participante);
 db.calificacion.belongsTo(db.muestra);

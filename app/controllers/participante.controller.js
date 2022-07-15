@@ -362,12 +362,23 @@ exports.getByDni = (req, res) => {
     }
   })
   .then((participante) => {
-    res.status(200).send({
-      ...participante,
-      categoria: participante.muestras.map((muestra)=>{
-        return (muestra.categoria.name)
-      })
-    });
+    if(participante?.mesa){
+      const oParticipante = participante.toJSON();
+      res.status(200).send({
+        n: oParticipante.n,
+        esJurado: oParticipante.esJurado,
+        dni: oParticipante.dni,
+        mesa:{
+          id: oParticipante.mesa.id,
+          name: oParticipante.mesa.name
+        },
+        categoria: oParticipante.muestras.map((muestra)=>{
+          return (muestra.categoria.name)
+        })
+      });
+    }else{
+      res.status(400).send({ message: "Participante no encontrado o sin mesa asignada..." });  
+    }
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
