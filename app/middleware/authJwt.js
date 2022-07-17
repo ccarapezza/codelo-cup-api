@@ -4,6 +4,7 @@ const db = require("../models");
 const User = db.user;
 const Participante = db.participante;
 const Mesa = db.mesa;
+const Categoria = db.categoria;
 
 verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
@@ -34,7 +35,7 @@ verifyTokenOrJudgeHash = (req, res, next) => {
       where: {
         hash: hash,
       },
-      include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}]
+      include: [{model: Mesa, as: "mesa", include: [Categoria]}, {model: Mesa, as: "mesaSecundaria", include: [Categoria]}]
     }).then((participante) => {
       if(participante&&participante?.esJurado){
         req.participante = participante?.toJSON();
