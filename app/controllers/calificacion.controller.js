@@ -25,7 +25,13 @@ exports.validar = (req, res) => {
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
       const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
-      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
+      //Categorias de las mesas del participante
+      var categoriasMesa = participante?.mesa?.categorias?.map((categoria)=>categoria.id);
+      if(!categoriasMesa){
+        categoriasMesa = [];
+      }
+      categoriasMesa?.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
+      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado){
         Calificacion.findOne({
           include: [ {
             model: Muestra,
