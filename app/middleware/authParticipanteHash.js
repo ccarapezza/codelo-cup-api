@@ -15,7 +15,7 @@ verifyHash = (req, res, next) => {
     where: {
       hash: hash,
     },
-    include: [{model: Mesa, as: "mesa", include: [Categoria]}, {model: Mesa, as: "mesaSecundaria", include: [Categoria]}]
+    include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}]
   }).then((participante) => {
     if(participante){
       req.participante = participante?.toJSON();
