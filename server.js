@@ -39,6 +39,7 @@ app.get("/api/data", async (req, res) => {
   const mesaData = await Mesa.findAll({
     include : [
       { model: Participante, required: false, attributes: ["id", "n", "name"], include:[Calificacion] , where: {esJurado: false} },
+      { model: Participante, as: "participantesSecundarios", required: false, attributes: ["id", "n", "name"], include:[Calificacion] , where: {esJurado: false} },
       { model: Muestra, required: false, attributes: ["id", "n", "name"], include:[Categoria] },
       { model: Categoria }
     ]
