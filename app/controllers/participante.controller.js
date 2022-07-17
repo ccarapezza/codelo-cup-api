@@ -364,6 +364,15 @@ exports.getByDni = (req, res) => {
   .then((participante) => {
     if(participante?.mesa){
       const oParticipante = participante.toJSON();
+
+      const mesaSecundaria = oParticipante.mesaSecundaria?
+        {
+          id: oParticipante.mesaSecundaria.id,
+          name: oParticipante.mesaSecundaria.name
+        }
+      :
+        null;
+
       res.status(200).send({
         n: oParticipante.n,
         esJurado: oParticipante.esJurado,
@@ -372,6 +381,7 @@ exports.getByDni = (req, res) => {
           id: oParticipante.mesa.id,
           name: oParticipante.mesa.name
         },
+        mesaSecundaria: mesaSecundaria,
         categoria: oParticipante.muestras.map((muestra)=>{
           return (muestra.categoria.name)
         })
