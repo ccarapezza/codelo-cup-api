@@ -81,7 +81,7 @@ exports.validar = (req, res) => {
           }
         })
         .catch((err) => {
-          res.status(500).send({ message: err.message });
+          res.status(500).send({ message: err.message, errorData: {categoriasMesa, muestra} });
         });
       }else{
         res.status(401).send({ message: "No tiene permisos para calificar esta muestra" });
