@@ -32,9 +32,6 @@ exports.validar = (req, res) => {
       }
       categoriasMesa?.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
 
-      console.log("TEST!!!!!!!!", categoriasMesa);
-      console.log("TEST2!!!!!!!!", muestra);
-      console.log("TEST3!!!!!!!!", muestra.toJSON());
       if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado){
         Calificacion.findOne({
           include: [ {
@@ -84,7 +81,7 @@ exports.validar = (req, res) => {
           res.status(500).send({ message: err.message, errorData: {categoriasMesa, muestra} });
         });
       }else{
-        res.status(401).send({ message: "No tiene permisos para calificar esta muestra", errorData: {categoriasMesa, muestra}  });
+        res.status(401).send({ message: "No tiene permisos para calificar esta muestra.", errorData: {categoriasMesa, muestra, participante}, participante: participante  });
       }
     }
   })
