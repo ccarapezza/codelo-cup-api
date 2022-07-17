@@ -30,7 +30,7 @@ exports.validar = (req, res) => {
       if(!categoriasMesa){
         categoriasMesa = [];
       }
-      categoriasMesa?.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
+      categoriasMesa = categoriasMesa?.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
 
       if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado){
         Calificacion.findOne({
@@ -112,7 +112,7 @@ exports.calificar = (req, res) => {
       if(!categoriasMesa){
         categoriasMesa = [];
       }
-      categoriasMesa?.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
+      categoriasMesa = categoriasMesa?.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
 
       if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado){
         Calificacion.findOne({
