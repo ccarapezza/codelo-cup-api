@@ -83,12 +83,17 @@ app.get("/api/data", async (req, res) => {
   const muestrasData = await Muestra.findAll({
     attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
   });
+
+  const muestrasCategoria = await Muestra.findAll({
+    include: [Categoria],
+  });
   
   res.json({
     mesaData: mesaData,
     participantes: participanteData[0],
     jurados: juradoData[0],
     muestras: muestrasData[0],
+    muestrasCategoria,
     calificaciones: calificacionesData?calificacionesData:{},
     calificacionesJurado: calificacionesJuradoData?calificacionesJuradoData:{}
   });
