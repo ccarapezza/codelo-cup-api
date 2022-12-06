@@ -1,3 +1,5 @@
+
+const { sequelize } = require("../models");
 const db = require("../models");
 const Mesa = db.mesa;
 const Muestra = db.muestra;
@@ -378,4 +380,229 @@ exports.updateMesa = (req, res) => {
   .catch((err) => {
     res.status(500).send({ message: err.message });
   });
+};
+
+exports.randomizeEnable = async(req, res) => {
+  var muestras = await Muestra.findAll({include: [Categoria, Participante]});
+  var participantes = await Participante.findAll({
+    where:{
+      esJurado: false
+    },
+    include: [{
+      model: Muestra,
+      include: [Categoria],
+    }]
+  });
+  var mesas = await Mesa.findAll({
+    include: [ {
+      model: Muestra,
+      include: [Categoria],
+    }, {
+      model: Participante,
+      include: [Muestra],
+    },
+    {
+      model: Participante,
+      as: "participantesSecundarios",
+      include: [Muestra],
+    },
+    {
+      model: Categoria
+    }]
+  })
+
+  res.status(200).send({
+    randomizeEnable: mesas.length > 10
+    && participantes.length > 10
+    && muestras.length > 10
+    && mesas.filter(mesa => mesa.muestras.length !== 0).length === 0
+    && mesas.filter(mesa => mesa.participantes.length !== 0).length === 0
+    && mesas.filter(mesa => mesa.participantesSecundarios.length !== 0).length === 0
+  });
+}
+
+exports.handOutMuestas = async(req, res) => {
+  var muestras = await Muestra.findAll({include: [Categoria, Participante], raw: true, nest: true});
+  var participantes = await Participante.findAll({
+    where:{
+      esJurado: false
+    },
+    include: [{
+      model: Muestra,
+      include: [Categoria],
+    }]
+  });
+  var mesas = await Mesa.findAll({
+    include: [ {
+      model: Muestra,
+      include: [Categoria],
+    }, {
+      model: Participante,
+      include: [Muestra],
+    },
+    {
+      model: Participante,
+      as: "participantesSecundarios",
+      include: [Muestra],
+    },
+    {
+      model: Categoria
+    }]
+    , raw: true
+    , nest: true
+  })
+
+  participantes = participantes.map((participante) => {
+    participante.dataValues.categorias = [];
+    participante.dataValues.muestras.forEach((muestra) => {
+      if(!participante.dataValues.categorias.includes(muestra.categoria.id)){
+        participante.dataValues.categorias.push(muestra.categoria.id);
+      }
+    });
+    return participante;
+  });
+
+  let muestrasPorCategoria = muestras.reduce(function(muestrasPorCategoria, muestra){
+    var categoriaActual = muestrasPorCategoria.find((categoria)=>muestra.categoria.id===categoria.id);
+    if(!categoriaActual){
+      categoriaActual = muestra.categoria;
+      categoriaActual.muestras = [];
+      muestrasPorCategoria.push(muestra.categoria);
+    }
+    delete muestra.categoria;
+    categoriaActual.muestras.push(muestra);
+
+    return muestrasPorCategoria;
+  }, []);
+
+  mesas = mesas.map((mesa)=>{
+    return({
+      ...mesa,
+      participantes: [],
+      muestras: []
+    })
+  });
+
+  muestrasPorCategoria = muestrasPorCategoria.map((categoria)=>{
+    return({
+      ...categoria,
+      mesasCount: Math.round((categoria.muestras.length/muestras.length)*mesas.length)
+    })
+  });
+
+  muestrasPorCategoria = muestrasPorCategoria.sort((a,b)=>b.mesasCount-a.mesasCount);
+
+  let mesaIndex = 0;
+
+  muestrasPorCategoria.forEach((categoria)=>{
+    for (let i = 0; i < categoria.mesasCount && i+mesaIndex < mesas.length; i++) {
+      const mesa = mesas[i+mesaIndex].categoria = {
+        id: categoria.id,
+        name: categoria.name
+      };
+    }
+    mesaIndex+=categoria.mesasCount;
+  });
+
+  const getMesaByCategoria = (categoria)=>{
+    return mesas.filter((mesa)=>mesa.categoria.id===categoria.id);
+  };
+
+  const getMesaWithMinorMuestrasByCategoria = (categoria, avoidMuestras = [], avoidMesas = [])=>{
+    return getMesaByCategoria(categoria).filter((mesa)=>{
+      let finded = false;
+      for (const muestra of avoidMuestras) {
+        for (let i = 0; i < mesa.muestras.length; i++) {
+          finded = finded || mesa.muestras.find((muestraMesa)=>muestraMesa.id===muestra.id);
+        }
+      }
+      return !finded;
+    }).filter((mesa)=>{
+      return !avoidMesas.includes(mesa.id);
+    }).sort((a,b)=>a.muestras.length-b.muestras.length)[0];
+  }
+
+  const getMesaWithMinorParticipantesByCategoria = (categoria, avoidMuestras = [])=>{
+    let mesasWithCategoria = getMesaByCategoria(categoria);
+    mesasWithCategoria = mesasWithCategoria.filter((mesa)=>{
+      let finded = false;
+      for (const muestra of avoidMuestras) {
+        for (let i = 0; i < mesa.muestras.length; i++) {
+          finded = finded || mesa.muestras.find((muestraMesa)=>muestraMesa.id===muestra.dataValues.id);
+        }
+      }
+      return !finded;
+    })
+    return mesasWithCategoria.sort((a,b)=>a.participantes.length-b.participantes.length)[0];
+  }
+
+  const getMesaByMuestra = (muestra)=>{
+    return mesas.find((mesa)=>{
+      return mesa.muestras.find((muestraMesa)=>muestraMesa.id===muestra.dataValues.id);
+    });
+  }
+
+  const switchMuestraToOtherMesa = (muestra)=>{
+    const mesa = getMesaByMuestra(muestra);
+    mesa.muestras = mesa.muestras.filter((muestraMesa)=>muestraMesa.id!==muestra.dataValues.id);
+    const mesaWithMinorMuestras = getMesaWithMinorMuestrasByCategoria(mesa.categoria, [muestra.id], [mesa.id]);
+    mesaWithMinorMuestras.muestras.push(muestra);
+  }
+
+  const copyMuestasPorCategoria = JSON.parse(JSON.stringify(muestrasPorCategoria));
+
+  for (const categoria of copyMuestasPorCategoria) {
+    while(categoria.muestras.length>0){
+      const mesa = getMesaWithMinorMuestrasByCategoria(categoria);
+      const indexSel = Math.round(Math.random()*categoria.muestras.length)-1;
+      const muestra = categoria.muestras.splice(indexSel, 1)[0];
+      mesa.muestras.push(muestra);
+      if(!mesa.avoidParticipants){
+        mesa.avoidParticipants = [];
+      }
+      mesa.avoidParticipants.push(muestra.participante.id);
+    }
+  }
+
+  while(participantes.length>0){
+    const indexSel = Math.round(Math.random()*participantes.length)-1;
+    const participanteCurrent = participantes.splice(indexSel, 1)[0];
+    const mesa = getMesaWithMinorParticipantesByCategoria({id: participanteCurrent.dataValues.categorias[0]}, participanteCurrent.muestras);
+    if(mesa){
+      if(!mesa.participantes){
+        mesa.participantes = [];
+      }
+      mesa.participantes.push(participanteCurrent.id);
+    }else{
+      //Switch Muestras
+      switchMuestraToOtherMesa(participanteCurrent.muestras[0]);
+      participantes.push(participanteCurrent);
+    }
+  }
+
+  const t = await sequelize.transaction();
+
+  try {
+    for (const mesa of mesas) {
+      const currentMesa = await Mesa.findByPk(mesa.id, {transaction: t});
+      const currentCategoria = await Categoria.findByPk(mesa.categoria.id, {transaction: t});
+      await currentMesa.addCategoria(currentCategoria, {transaction: t});
+      for (const muestra of mesa.muestras) {
+        const currentMuestra = await Muestra.findByPk(muestra.id, {transaction: t});
+        await currentMesa.addMuestra(currentMuestra, {transaction: t});
+      }
+      for (const participanteId of mesa.participantes) {
+        const currentParticipante = await Participante.findByPk(participanteId, {transaction: t});
+        await currentMesa.addParticipante(currentParticipante, {transaction: t});
+      }
+    }
+    console.log("Commit...");
+    await t.commit();
+  } catch (error) {
+    console.error("Transaction error...", error);
+    await t.rollback();
+    res.status(400).send("No se pudo repartir los participantes y las muestras");
+  }
+
+  res.status(200).send("Participantes y muestras repartidas equitativamente");
 };

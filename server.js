@@ -1,5 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+
+var privateKey  = fs.readFileSync('app/certs/key.pem', 'utf8');
+var certificate = fs.readFileSync('app/certs/cert.pem', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
 
 const app = express();
 
@@ -17,6 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // database
 const db = require("./app/models");
+const { QueryTypes } = require("sequelize");
+const { sequelize } = require("./app/models");
+const SystemParams = require("./app/config/system.params");
+const { default: SYSTEM_PARAMS_KEYS, default: SystemParamsKeys } = require("./app/enum/SystemParamsKeys");
 const Mesa = db.mesa;
 const Muestra = db.muestra;
 const Participante = db.participante;
@@ -103,27 +114,30 @@ require("./app/routes/dojo.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
+/*
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
+*/
 
-function initial() {
-  Role.create({
-    id: 1,
-    name: "user",
+var httpServer = http.createServer(app);
+httpServer.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
+
+if(process.env.NODE_ENV !== "production"){
+  var httpsServer = https.createServer(credentials, app);
+  httpsServer.listen(8443, () => {
+    console.log(`Server is running on port 8443.`);
   });
+}
 
-  Role.create({
-    id: 2,
-    name: "moderator",
-  });
+async function initial() {
+  await Role.create({id: 1, name: "user"});
+  await Role.create({id: 2, name: "moderator"});
+  await Role.create({id: 3, name: "admin"});
 
-  Role.create({
-    id: 3,
-    name: "admin",
-  });
-
-  User.create({
+  let user = await User.create({
     username: "admin",
     email: "admin@admin.com",
     password: "$2a$08$7ceHWSMUYjCJbW8Aal8BVuTLqKn8LBjwWgKlV0tpx5S6DzeBLzmqC", //QKfbt4fLAT
@@ -133,11 +147,16 @@ function initial() {
     password: "$2a$08$7ceHWSMUYjCJbW8Aal8BVuTLqKn8LBjwWgKlV0tpx5S6DzeBLzmqC", //QKfbt4fLAT
     password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
     */
-  }).then((user) => {
-    user.setRoles([1]);
   });
 
-  for (let index= 1; index < 7; index++) {
+  await user.setRoles([1]);
+
+  SystemParams.getInstance().setParam(SystemParamsKeys.RESTRICTED_BY_MESA, "false");
+
+  await executeImport(db.sequelize);
+
+  /*
+  for (let index= 1; index < 13; index++) {
     Mesa.create({
       name: "Mesa "+index,
     });  
@@ -157,4 +176,29 @@ function initial() {
     name: "Rosin",
     labels: "Presentación,Aroma,Sabor,Residuo"
   });
+  */
+}
+
+var executeImport = async (sqlz) => {
+  try {
+    var sqlString = fs.readFileSync('app/import/import.sql').toString().trim();
+    var sqlWithoutComments = sqlString.replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)|(--[^.].*)/gm, '');
+    sqlWithoutComments = sqlWithoutComments.replace(/\r?\n|\r/g, "")
+    sqlWithoutComments = sqlWithoutComments.replace(/^\s+/gm, "")
+    arr = sqlWithoutComments.split(";");
+
+    // remove empty statements
+    arr = arr.filter((el) => el != '');
+    arr = arr.map((el) => el + ';');
+
+    console.log("Array...", arr);
+
+    console.log("Executing test data...");
+    for (const sql of arr) {
+      await sqlz.query(sql);
+    }
+    console.log("Executed");
+  } catch (error) {
+    console.error('could not rebuild the views', error);
+  }
 }

@@ -180,4 +180,15 @@ module.exports = function (app) {
   ],
   controller.deleteMesa);
 
+  app.get("/api/mesas/handOutMuestas",
+  [
+    authJwt.verifyToken,
+  ],
+  controller.handOutMuestas);
+
+  app.get("/api/mesas/randomizeEnable",
+  [
+    authJwt.verifyToken,
+  ],
+  controller.randomizeEnable);
 };

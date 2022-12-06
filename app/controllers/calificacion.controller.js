@@ -25,7 +25,8 @@ exports.validar = (req, res) => {
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
       const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
-      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado){
+      const restrictedByMesa = SystemParams.getInstance().getParam(SystemParamsKeys.RESTRICTED_BY_MESA)==="true";
+      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado||!restrictedByMesa){
         Calificacion.findOne({
           include: [ {
             model: Muestra,
@@ -103,8 +104,9 @@ exports.calificar = (req, res) => {
       //Categorias de las mesas del participante
       const categoriasMesa = participante?.mesa?.categorias?.map((categoria)=>categoria.id);
       categoriasMesa.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
+      const restrictedByMesa = SystemParams.getInstance().getParam(SystemParamsKeys.RESTRICTED_BY_MESA)==="true";
 
-      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado){
+      if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado||!restrictedByMesa){
         Calificacion.findOne({
           where: {
             participanteId: participante?.id,

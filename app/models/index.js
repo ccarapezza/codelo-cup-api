@@ -41,6 +41,7 @@ db.participante = require("../models/participante.model.js")(sequelize, Sequeliz
 db.calificacion = require("../models/calificacion.model.js")(sequelize, Sequelize);
 db.dojo = require("../models/dojo.model.js")(sequelize, Sequelize);
 db.mesa = require("../models/mesa.model.js")(sequelize, Sequelize);
+db.param = require("../models/param.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "user_roles",

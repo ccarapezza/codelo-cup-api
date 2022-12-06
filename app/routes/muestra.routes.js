@@ -12,8 +12,21 @@ module.exports = function (app) {
   });
 
   app.get("/api/muestras/qrs", 
-  [
-    authJwt.verifyToken
-  ],
-  controller.hashList);
+    [
+      authJwt.verifyToken
+    ],
+    controller.hashList
+  );
+
+  app.get("/api/muestras/list",
+    [
+      authJwt.verifyToken,
+    ],
+    controller.findMuestrasAll
+  );
+
+  
+
+
+
 };
