@@ -4,4 +4,6 @@ const SystemParamsKeys = {
 }
 Object.freeze(SystemParamsKeys)
 
-export default SystemParamsKeys
+module.exports = {
+    ...SystemParamsKeys
+};

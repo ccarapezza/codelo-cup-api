@@ -1,5 +1,6 @@
-const controller = require("../controllers/auth.controller");
+const controller = require("../controllers/admin.controller");
 const { check, validationResult } = require('express-validator');
+const { authJwt } = require("../middleware");
 
 module.exports = function(app) {
   app.use(function(req, res, next) {
@@ -10,10 +11,10 @@ module.exports = function(app) {
     next();
   });
 
-  app.put("/api/auth/update-admin-password",
+  app.put("/api/admin/update-mesa-restricted",
   [
-    check('oldPassword').exists({checkFalsy: true}).isString(),
-    check('password').exists({checkFalsy: true}).isString(),
+    authJwt.verifyToken,
+    check('value').exists({checkFalsy: true}).isString(),
     (req, res, next) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -22,12 +23,11 @@ module.exports = function(app) {
       next();
     }
   ],
-  controller.updateAdminPassword);
+  controller.updateMesaRestricted);
 
-  app.post("/api/auth/signin",
+  app.get("/api/admin/get-mesa-restricted",
   [
-    check('username').exists({checkFalsy: true}).isString(),
-    check('password').exists({checkFalsy: true}).isString(),
+    authJwt.verifyToken,
     (req, res, next) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -36,5 +36,5 @@ module.exports = function(app) {
       next();
     }
   ],
-  controller.signin);
+  controller.getMesaRestricted);
 };

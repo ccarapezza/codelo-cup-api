@@ -27,7 +27,7 @@ const db = require("./app/models");
 const { QueryTypes } = require("sequelize");
 const { sequelize } = require("./app/models");
 const SystemParams = require("./app/config/system.params");
-const { default: SYSTEM_PARAMS_KEYS, default: SystemParamsKeys } = require("./app/enum/SystemParamsKeys");
+const SystemParamsKeys = require("./app/enum/SystemParamsKeys");
 const Mesa = db.mesa;
 const Muestra = db.muestra;
 const Participante = db.participante;
@@ -45,6 +45,12 @@ db.sequelize.sync({ force: true }).then(() => {
 app.get("/", (req, res) => {
   res.json({
     message: "Bienvenido CodeloCup API. MAIN-RESYNC (" + process.env.NODE_ENV + ")",
+  });
+});
+
+app.get("/api/is-alive", (req, res) => {
+  res.json({
+    message: "CodeloCup API (" + process.env.NODE_ENV + "), "+new Date().toDateString(),
   });
 });
 
@@ -104,6 +110,7 @@ app.get("/api/data", async (req, res) => {
 });
 
 // routes
+require("./app/routes/admin.routes")(app);
 require("./app/routes/auth.routes")(app);
 require("./app/routes/participante.routes")(app);
 require("./app/routes/calificacion.routes")(app);
@@ -132,7 +139,7 @@ if(process.env.NODE_ENV !== "production"){
   });
 }
 
-async function initial() {
+const initial = async () => {
   await Role.create({id: 1, name: "user"});
   await Role.create({id: 2, name: "moderator"});
   await Role.create({id: 3, name: "admin"});
@@ -140,7 +147,7 @@ async function initial() {
   let user = await User.create({
     username: "admin",
     email: "admin@admin.com",
-    password: "$2a$08$7ceHWSMUYjCJbW8Aal8BVuTLqKn8LBjwWgKlV0tpx5S6DzeBLzmqC", //QKfbt4fLAT
+    password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
     /*
     password: "$2a$08$ANDS1Yo6EQSQfzHQoybU2eBCR.3Ut6t4AL099R8hI3J.NE.o4vEaW", //23737nefasta
     password: "$2a$08$r7xBr0LQtrwkFjm27mNyountfloLujhhNF/6Adzl./VecMGUi0gVu", //c0p43d3n
@@ -149,37 +156,12 @@ async function initial() {
     */
   });
 
-  await user.setRoles([1]);
-
-  SystemParams.getInstance().setParam(SystemParamsKeys.RESTRICTED_BY_MESA, "false");
-
+  await user.setRoles([1]);  
   await executeImport(db.sequelize);
-
-  /*
-  for (let index= 1; index < 13; index++) {
-    Mesa.create({
-      name: "Mesa "+index,
-    });  
-  }
-
-  Categoria.create({
-    name: "Exterior",
-    labels: "Presentación,Aroma en Flor,Aroma Picado,Sabor Apagado,Sabor Prendido"
-  });
-
-  Categoria.create({
-    name: "Interior",
-    labels: "Presentación,Aroma en Flor,Aroma Picado,Sabor Apagado,Sabor Prendido"
-  });
-
-  Categoria.create({
-    name: "Rosin",
-    labels: "Presentación,Aroma,Sabor,Residuo"
-  });
-  */
+  await SystemParams.getInstance().setParam(SystemParamsKeys.RESTRICTED_BY_MESA, "false");
 }
 
-var executeImport = async (sqlz) => {
+const executeImport = async (sqlz) => {
   try {
     var sqlString = fs.readFileSync('app/import/import.sql').toString().trim();
     var sqlWithoutComments = sqlString.replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)|(--[^.].*)/gm, '');

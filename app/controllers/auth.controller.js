@@ -40,6 +40,40 @@ exports.signup = (req, res) => {
     });
 };
 
+exports.updateAdminPassword = (req, res) => {
+  // Change admin password
+  User.findOne({
+    where: {
+      username: "admin",
+    }
+  })
+  .then((user) => {
+    var passwordIsValid = bcrypt.compareSync(
+      req.body.oldPassword,
+      user.password
+    );
+
+    if (!passwordIsValid) {
+      return res.status(401).send({
+        message: "Password incorrecto!",
+      });
+    }else{
+      user.password = bcrypt.hashSync(req.body.password, 8);
+      user.save()
+      .then(() => {
+        res.send({ message: "Password modificado!" });
+      })
+      .catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
+    }
+
+  })
+  .catch((err) => {
+    res.status(500).send({ message: err.message });
+  });
+};
+
 exports.signin = (req, res) => {
   User.findOne({
     where: {

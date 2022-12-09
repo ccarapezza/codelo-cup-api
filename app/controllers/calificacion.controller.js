@@ -1,3 +1,5 @@
+const SystemParams = require("../config/system.params");
+const SystemParamsKeys = require("../enum/SystemParamsKeys");
 const db = require("../models");
 const Calificacion = db.calificacion;
 const Participante = db.participante;
@@ -20,12 +22,12 @@ exports.validar = (req, res) => {
       }
     },
     include: [ Mesa, Categoria ]
-  }).then((muestra) => {
+  }).then(async(muestra) => {
     if(parseInt(muestra.participanteId)===parseInt(participanteId)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
       const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
-      const restrictedByMesa = SystemParams.getInstance().getParam(SystemParamsKeys.RESTRICTED_BY_MESA)==="true";
+      const restrictedByMesa = await SystemParams.getInstance().getParam(SystemParamsKeys.RESTRICTED_BY_MESA)==="true";
       if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||esJurado||!restrictedByMesa){
         Calificacion.findOne({
           include: [ {
@@ -96,15 +98,16 @@ exports.calificar = (req, res) => {
       }
     },
     include: [ Mesa, Categoria ]
-  }).then((muestra) => {
+  }).then(async(muestra) => {
     if(parseInt(muestra.participanteId)===parseInt(participante?.id)){//Quiere calificar su propia muestra...........
       res.status(401).send({ message: "Está intentando calificar su propia muestra" });
     }else{
       const mesas = muestra?.mesas?.map((mesa)=>mesa.id);
       //Categorias de las mesas del participante
-      const categoriasMesa = participante?.mesa?.categorias?.map((categoria)=>categoria.id);
-      categoriasMesa.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
-      const restrictedByMesa = SystemParams.getInstance().getParam(SystemParamsKeys.RESTRICTED_BY_MESA)==="true";
+      let categoriasMesa = [];
+      categoriasMesa?.concat(participante?.mesa?.categorias?.map((categoria)=>categoria.id));
+      categoriasMesa?.concat(participante?.mesaSecundaria?.categorias?.map((categoria)=>categoria.id));
+      const restrictedByMesa = await SystemParams.getInstance().getParam(SystemParamsKeys.RESTRICTED_BY_MESA)==="true";
 
       if(mesas.includes(participante?.mesa?.id)||mesas.includes(participante?.mesaSecundaria?.id)||categoriasMesa.includes(muestra?.categoria?.id)||esJurado||!restrictedByMesa){
         Calificacion.findOne({
@@ -214,7 +217,22 @@ exports.findByMuestraHash = (req, res) => {
         }
       ]
     }).then((calificaciones) => {
-      res.status(200).send({ calificaciones: calificaciones });
+      res.status(200).send({ 
+        calificaciones: calificaciones.map((currentcalificacion)=>{
+          const calificacion = currentcalificacion.toJSON();
+          const valores = calificacion.valores.split(",");
+          const labels = calificacion.muestra.categoria.labels.split(",");
+          return({
+            ...calificacion,
+            valores: valores.map((currentValor, index)=>{
+              return({
+                label: labels[index],
+                valor: parseFloat(currentValor)
+              })
+            })
+          })
+        })
+      });
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
