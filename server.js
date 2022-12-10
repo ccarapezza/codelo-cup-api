@@ -54,6 +54,52 @@ app.get("/api/is-alive", (req, res) => {
   });
 });
 
+app.get("/api/create-random-calificaciones", async (req, res) => {
+  
+    const muestras = await Muestra.findAll({include: [Categoria]});
+    const participantes = await Participante.findAll();
+  
+    const data = [];
+
+    function getRandomNumber(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    for (const muestra of muestras) {
+      const countOfCalificacionesPerMuestra = getRandomNumber(8, 10);
+      let participantesTemp = [...participantes];
+      for (let i = 0; i < countOfCalificacionesPerMuestra; i++) {
+        let indexSel;
+        do{
+          indexSel = Math.round(Math.random()*participantesTemp.length);
+        }while(participantesTemp[indexSel]?.id===muestra.participanteId||participantesTemp[indexSel]===undefined);
+        const participante = participantesTemp.splice(indexSel, 1)[0];
+        const valores = [];
+        for (let k = 0; k < muestra.categoria.labels.split(",").length; k++) {
+          valores.push(Math.floor(Math.random() * 10) + 1);
+        }
+        data.push({
+          muestraId: muestra.id,
+          participanteId: participante.id,
+          valores: valores.toString()
+        })
+      }
+
+    }
+  
+    Calificacion.bulkCreate(data)
+    .then(() => {
+      res.json({
+        message: "Calificaciones creadas correctamente"
+      });
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Error al crear calificaciones"
+      });
+    });
+})
+
 app.get("/api/data", async (req, res) => {
 
   const mesaData = await Mesa.findAll({
