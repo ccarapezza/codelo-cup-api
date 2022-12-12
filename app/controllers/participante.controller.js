@@ -14,17 +14,21 @@ exports.create = async(req, res) => {
   const participantesN = await Participante.findAll({raw: true, attributes: ['n']});
   const usedParticipantesNs = participantesN.map((participante)=>participante.n);
   let availableParticipantesN = new Array();
-  for(let i=1; i<120; i++){
+  let maxParticipantesN = 120;
+  maxParticipantesN = maxParticipantesN<=participantesN.length?participantesN.length+20:maxParticipantesN;
+  for(let i=1; i<maxParticipantesN; i++){
     if(!usedParticipantesNs.includes(i)){
       availableParticipantesN.push(i);
     }
   }
   const n = availableParticipantesN[Math.floor(Math.random() * availableParticipantesN.length)];
 
-  const muestraN = await Muestra.findAll({raw: true, attributes: ['n']});
-  const usedMuestrasNs = muestraN.map((muestra)=>muestra.n);
+  const muestrasN = await Muestra.findAll({raw: true, attributes: ['n']});
+  const usedMuestrasNs = muestrasN.map((muestra)=>muestra.n);
   let availableMuestraN = new Array();
-  for(let i=1; i<120; i++){
+  let maxMuestrasN = 120;
+  maxMuestrasN = maxMuestrasN<=muestrasN.length?muestrasN.length+20:maxMuestrasN;
+  for(let i=1; i<maxMuestrasN; i++){
     if(!usedMuestrasNs.includes(i)){
       availableMuestraN.push(i);
     }
@@ -40,8 +44,9 @@ exports.create = async(req, res) => {
   })
   .then((participante) => {
     const hashedMuestras = data.muestras.map((muestra) => {
-      const n = availableMuestraN[Math.floor(Math.random() * availableMuestraN.length)];
-      availableMuestraN.push(n);
+      const indexSel = Math.round(Math.random()*availableMuestraN.length)-1;
+      const n = availableMuestraN.splice(indexSel, 1)[0];
+
       return {
         ...muestra,
         n: n,
