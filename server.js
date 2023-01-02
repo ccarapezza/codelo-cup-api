@@ -44,7 +44,7 @@ db.sequelize.sync({ force: true }).then(() => {
 // simple route
 app.get("/", (req, res) => {
   res.json({
-    message: "Bienvenido CodeloCup API. MAIN-RESYNC (" + process.env.NODE_ENV + ")",
+    message: "Bienvenido CodeloCup API. MAIN-INITIAL-RESYNC-DB (" + process.env.NODE_ENV + ")",
   });
 });
 
@@ -53,52 +53,6 @@ app.get("/api/is-alive", (req, res) => {
     message: "CodeloCup API (" + process.env.NODE_ENV + "), "+new Date().toDateString(),
   });
 });
-
-app.get("/api/create-random-calificaciones", async (req, res) => {
-  
-    const muestras = await Muestra.findAll({include: [Categoria]});
-    const participantes = await Participante.findAll();
-  
-    const data = [];
-
-    function getRandomNumber(min, max) {
-      return Math.floor(Math.random() * (max - min + 1) + min);
-    }
-
-    for (const muestra of muestras) {
-      const countOfCalificacionesPerMuestra = getRandomNumber(8, 10);
-      let participantesTemp = [...participantes];
-      for (let i = 0; i < countOfCalificacionesPerMuestra; i++) {
-        let indexSel;
-        do{
-          indexSel = Math.round(Math.random()*participantesTemp.length);
-        }while(participantesTemp[indexSel]?.id===muestra.participanteId||participantesTemp[indexSel]===undefined);
-        const participante = participantesTemp.splice(indexSel, 1)[0];
-        const valores = [];
-        for (let k = 0; k < muestra.categoria.labels.split(",").length; k++) {
-          valores.push(Math.floor(Math.random() * 10) + 1);
-        }
-        data.push({
-          muestraId: muestra.id,
-          participanteId: participante.id,
-          valores: valores.toString()
-        })
-      }
-
-    }
-  
-    Calificacion.bulkCreate(data)
-    .then(() => {
-      res.json({
-        message: "Calificaciones creadas correctamente"
-      });
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: err.message || "Error al crear calificaciones"
-      });
-    });
-})
 
 app.get("/api/data", async (req, res) => {
 
@@ -189,39 +143,8 @@ const initial = async () => {
     username: "admin",
     email: "admin@admin.com",
     password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
-    /*
-    password: "$2a$08$ANDS1Yo6EQSQfzHQoybU2eBCR.3Ut6t4AL099R8hI3J.NE.o4vEaW", //23737nefasta
-    password: "$2a$08$r7xBr0LQtrwkFjm27mNyountfloLujhhNF/6Adzl./VecMGUi0gVu", //c0p43d3n
-    password: "$2a$08$7ceHWSMUYjCJbW8Aal8BVuTLqKn8LBjwWgKlV0tpx5S6DzeBLzmqC", //QKfbt4fLAT
-    password: "$2a$08$6e/QNEys..r1DPhtHqxVvOtMAfYOg.60p6wW8VANtapcyZg652aRS", //admin
-    */
   });
 
   await user.setRoles([1]);  
-  await executeImport(db.sequelize);
   await SystemParams.getInstance().setParam(SystemParamsKeys.RESTRICTED_BY_MESA, "false");
-}
-
-const executeImport = async (sqlz) => {
-  try {
-    var sqlString = fs.readFileSync('app/import/import.sql').toString().trim();
-    var sqlWithoutComments = sqlString.replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)|(--[^.].*)/gm, '');
-    sqlWithoutComments = sqlWithoutComments.replace(/\r?\n|\r/g, "")
-    sqlWithoutComments = sqlWithoutComments.replace(/^\s+/gm, "")
-    arr = sqlWithoutComments.split(";");
-
-    // remove empty statements
-    arr = arr.filter((el) => el != '');
-    arr = arr.map((el) => el + ';');
-
-    console.log("Array...", arr);
-
-    console.log("Executing test data...");
-    for (const sql of arr) {
-      await sqlz.query(sql);
-    }
-    console.log("Executed");
-  } catch (error) {
-    console.error('could not rebuild the views', error);
-  }
 }
