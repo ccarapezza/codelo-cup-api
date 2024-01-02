@@ -298,9 +298,15 @@ exports.participanteLogin = (req, res) => {
     where: {
       hash: hash,
     },
-    include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}]
+    include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}, {model: Muestra}]
   }).then((participante) => {
     if(participante){
+      if( (!participante.esJurado) && participante.muestras.length===0 ){
+        participante.esInvitado = true;
+      }else{
+        participante.esInvitado = false;
+      }
+      delete participante.muestras;
       res.status(200).send(participante);
     }else{
       res.status(500).send({ message: "Datos inválidos." });  
