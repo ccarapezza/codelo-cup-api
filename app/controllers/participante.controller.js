@@ -198,17 +198,25 @@ exports.updateMuestra = (req, res) => {
 exports.delete = (req, res) => {
   const data = req.body;
 
-  Participante.destroy({
+  Muestra.destroy({
     where: {
-      id: data.id
+      participanteId: data.id
     }
-  })
-  .then((response) => {
-    res.status(200).send({ message: "Participante eliminado correctamente" });
-  })
-  .catch((err) => {
+  }).then(() => {
+    Participante.destroy({
+      where: {
+        id: data.id
+      }
+    })
+    .then(() => {
+      res.status(200).send({ message: "Participante eliminado correctamente" });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+  }).catch((err) => {
     res.status(500).send({ message: err.message });
-  });
+  });  
 };
 
 exports.findAll = (req, res) => {
