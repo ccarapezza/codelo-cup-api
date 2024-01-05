@@ -318,13 +318,10 @@ exports.participanteLogin = (req, res) => {
     include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}, {model: Muestra}]
   }).then((participante) => {
     if(participante){
-      if( (!participante.esJurado) && participante.muestras.length===0 ){
-        participante.esInvitado = true;
-      }else{
-        participante.esInvitado = false;
-      }
-      delete participante.muestras;
-      res.status(200).send(participante);
+      let participanteJson = participante.toJSON();
+      participanteJson.esInvitado = ( (!participanteJson.esJurado) && participanteJson.muestras.length===0 )?true:false;
+      delete participanteJson.muestras;
+      res.status(200).send(participanteJson);
     }else{
       res.status(500).send({ message: "Datos inválidos." });  
     }
