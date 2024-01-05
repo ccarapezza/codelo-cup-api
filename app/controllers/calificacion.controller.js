@@ -163,13 +163,14 @@ exports.resultados = (req, res) => {
         Categoria],
     },{
       model: Participante,
-      include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}],
+      include: [{model: Mesa, as: "mesa"}, {model: Mesa, as: "mesaSecundaria"}, Muestra],
     }],
     nest: true
   }).then((calificaciones) => {
     res.status(200).send({
       calificaciones: calificaciones.map((currentcalificacion)=>{
         const calificacion = currentcalificacion.toJSON();
+        calificacion.participante.esInvitado = (!calificacion.participante.esJurado)&&calificacion.participante.muestras.length===0;
         const valores = calificacion.valores.split(",");
         const labels = calificacion.muestra.categoria.labels.split(",");
         return({

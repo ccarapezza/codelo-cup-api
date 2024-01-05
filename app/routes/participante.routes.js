@@ -18,7 +18,7 @@ module.exports = function (app) {
     [
       authJwt.verifyToken,
       check('name').exists({checkFalsy: true}),
-      check('muestras').isArray().notEmpty().custom((value, { req }) => {
+      check('muestras').isArray().optional().custom((value, { req }) => {
         const muestras = req.body.muestras;
         for (const muestra of muestras) {
           if(!muestra.name){

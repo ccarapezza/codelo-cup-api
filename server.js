@@ -83,6 +83,8 @@ app.get("/api/data", async (req, res) => {
       esJurado: false
     },
     attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
+    include: [ Muestra ]
+      
   });
 
   const juradoData = await Participante.findAll({
@@ -95,10 +97,17 @@ app.get("/api/data", async (req, res) => {
   const muestrasData = await Muestra.findAll({
     attributes: [[db.sequelize.fn('COUNT', 'id'), 'count']],
   });
+
+  const participantes = participanteData[0]?.map((participante)=>{
+    return({
+      ...participante.toJSON(),
+      esInvitado: (!participante.esJurado)&&participante.muestras.length===0
+    })
+  })
   
   res.json({
     mesaData: mesaData,
-    participantes: participanteData[0],
+    participantes: participantes,
     jurados: juradoData[0],
     muestras: muestrasData[0],
     calificaciones: calificacionesData?calificacionesData:{},

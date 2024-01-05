@@ -43,21 +43,25 @@ exports.create = async(req, res) => {
     hash: crypto.createHash('sha1').update(data.id+data.name+new Date().getTime().toString()).digest('hex')
   })
   .then((participante) => {
-    const hashedMuestras = data.muestras.map((muestra) => {
-      const indexSel = Math.round(Math.random()*availableMuestraN.length)-1;
-      const n = availableMuestraN.splice(indexSel, 1)[0];
-
-      return {
-        ...muestra,
-        n: n,
-        hash: crypto.createHash('sha1').update(data.id+data.name+muestra.id+muestra.name+new Date().getTime().toString()).digest('hex')
-      };
-    });
-    Muestra.bulkCreate(hashedMuestras).then((muestras) => {
-      participante.addMuestras(muestras).then(() => {
-        res.status(200).send({ message: "Participante registered successfully!" });
-      });
-    });
+    if(data.muestras&&data.muestras.length>0){
+        const hashedMuestras = data.muestras.map((muestra) => {
+          const indexSel = Math.round(Math.random()*availableMuestraN.length)-1;
+          const n = availableMuestraN.splice(indexSel, 1)[0];
+    
+          return {
+            ...muestra,
+            n: n,
+            hash: crypto.createHash('sha1').update(data.id+data.name+muestra.id+muestra.name+new Date().getTime().toString()).digest('hex')
+          };
+        });
+        Muestra.bulkCreate(hashedMuestras).then((muestras) => {
+          participante.addMuestras(muestras).then(() => {
+            res.status(200).send({ message: "Participante registered successfully!" });
+          });
+        });
+    }else{
+      res.status(200).send({ message: "Participante registered successfully!" });
+    }
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
@@ -242,7 +246,12 @@ exports.findAll = (req, res) => {
     }
   })
   .then((participantes) => {
-    res.status(200).send(participantes);
+    res.status(200).send(participantes.map((participante)=>{
+        return({
+          ...participante.toJSON(),
+          esInvitado: (!participante.esJurado)&&participante.muestras.length===0
+        })
+      }));
   })
   .catch((err) => {
     res.status(500).send({ message: err.message });
