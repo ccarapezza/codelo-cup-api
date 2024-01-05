@@ -203,13 +203,23 @@ const initial = async () => {
   });
 
   await user.setRoles([1]);  
-  await executeImport(db.sequelize);
+  var sqlImport = fs.readFileSync('app/import/import.sql').toString().trim();
+  await executeImport(db.sequelize, sqlImport);
+
+  // Test data
+  /*
+  var sqlImportDojos = fs.readFileSync('app/import/test_dojos.sql').toString().trim();
+  await executeImport(db.sequelize, sqlImportDojos);
+
+  var sqlImportParticipantes = fs.readFileSync('app/import/test_participantes.sql').toString().trim();
+  await executeImport(db.sequelize, sqlImportParticipantes);
+  */
+
   await SystemParams.getInstance().setParam(SystemParamsKeys.RESTRICTED_BY_MESA, "false");
 }
 
-const executeImport = async (sqlz) => {
+const executeImport = async (sqlz, sqlString) => {
   try {
-    var sqlString = fs.readFileSync('app/import/import.sql').toString().trim();
     var sqlWithoutComments = sqlString.replace(/(\/\*[^*]*\*\/)|(\/\/[^*]*)|(--[^.].*)/gm, '');
     sqlWithoutComments = sqlWithoutComments.replace(/\r?\n|\r/g, "")
     sqlWithoutComments = sqlWithoutComments.replace(/^\s+/gm, "")
